@@ -27,3 +27,8 @@
 *.exe
 *.out
 *.app
+
+# Documentation
+*.aux
+*.log
+*.pdf
