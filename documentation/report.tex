@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{secdot}
+\sectiondot{subsection}
+\usepackage{scrextend}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{ltablex}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{parskip}
+\addtokomafont{labelinglabel}{\sffamily}
+\usepackage{color}
+\definecolor{light-gray}{gray}{0.95}
+\newcommand{\keyword}[1]{\colorbox{light-gray}{\texttt{#1}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\usepackage{textcomp}
+
+\title{\vspace{7cm}\LARGE Techniki kompilacji\\semestr 17L\\Język do operacji na listach}
+\author{\LargeŁukasz Wlazły\\nr albumu: 269365}
+\date{}
+
+\begin{document}
+\maketitle
+\pagenumbering{gobble}
+\newpage
+\pagenumbering{arabic}
+
+\section{Założenia projektowe}
+\begin{enumerate}
+\item Język będzie posiadał statyczne typowanie.
+\item Język będzie obsługiwał wszystkie typy liczbowe dostępne w C++11 oraz wbudowany typ listy, który będzie przechowywał proste typy liczbowe.
+\item Typy proste będą przekazywane do funkcji przez wartość, listy natomiast będą przekazywane przez referencję.
+\item Nie będzie możliwe zagnieżdżanie funkcji, deklaracja może odbywać się tylko w zasięgu globalnym.
+\item Program rozpoczyna się od funkcji \code{main} o typie \code{bool}.
+\end{enumerate}
+
+\section{Atomy leksykalne}
+\keyword{list}, \keyword{if}, \keyword{else}, \keyword{while}, \keyword{for}, \keyword{in}, \keyword{return}\\
+\keyword{true}, \keyword{false}, \\
+\keyword{(}, \keyword{)}, \keyword{[}, \keyword{]}, \keyword{\{}, \keyword{\}}, \\
+\keyword{=}, \keyword{+}, \keyword{-}, \keyword{*}, \keyword{/} \\
+\keyword{==}, \keyword{!=}, \keyword{<=}, \keyword{>=}, \\
+\keyword{\&\&}, \keyword{||}, \\
+\keyword{;}
+
+\section{Gramatyka}
+\code{program} \textrightarrow \code{funsDefs} \\
+\code{funsDefs} \textrightarrow \code{funDef | funDef funsDefs} \\
+\code{funDef} \textrightarrow \code{funDecl\{ exprs \} | funDecl\{ exprs return val\}} \\
+\code{funDecl} \textrightarrow \code{varDecl( args )} \\
+\code{args} \textrightarrow \code{varDecl | varDecl, args} \\
+\code{exprs} \textrightarrow \code{expr | expr\keyword{;} exprs} \\
+\code{expr} \textrightarrow \code{condExpr | loopExpr | callExpr | indexExpr | varDef | varDecl | listExpr} \\
+
+\code{condExpr} \textrightarrow \code{ifExpr | ifExpr elseExpr} \\
+\code{ifExpr} \textrightarrow \code{\keyword{if (} logicStmt \keyword{)} exprs } \\
+\code{elseExpr} \textrightarrow \code{\keyword{else} exprs} \\
+\code{logicStmt} \textrightarrow \code{val logicOp val | logicStmt logicTie logicStmt} \\
+
+\code{loopExpr} \textrightarrow \code{whileExpr | forExpr} \\
+\code{whileExpr} \textrightarrow \code{\keyword{while (} logicStmt \keyword{)} exprs} \\
+\code{forExpr} \textrightarrow \code{\keyword{for (} varDef \keyword{;} logicStmt \keyword{;} assignExpr \keyword{)} exprs}
+
+\code{listExpr} \textrightarrow \code{\keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter condExpr \keyword{]} } \\
+\code{basicListIter} \textrightarrow \code{ expr \keyword{for} identifier \keyword{in} identifier} \\
+
+\code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
+\code{varDecl} \textrightarrow \code{type identifier} \\
+\code{val} \textrightarrow \code{lVal | rVal} \\
+\code{lVal} \textrightarrow \code{identifier | indexExpr} \\
+\code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | identifier mathOp val | number | boolVal} \\
+\code{indexExpr} \textrightarrow \code{identifier\keyword{[}number\keyword{]}} \\
+
+\code{identifier} \textrightarrow \code{letter*} \\
+\code{logicOp} \textrightarrow \code{\keyword{==} | \keyword{!=} | \keyword{<=} | \keyword{>=}} \\
+\code{logicTie} \textrightarrow \code{\keyword{\&\&} | \keyword{||}} \\
+\code{mathOp} \textrightarrow \code{\keyword{=} | \keyword{+} | \keyword{-} | \keyword{*} | \keyword{/}} \\
+\code{letter} \textrightarrow \code{\keyword{A} \ldots \keyword{z}} \\
+\code{number} \textrightarrow \code{digit* | digit*.digit*} \\
+\code{digit} \textrightarrow \code{\keyword{0} \ldots \keyword{9}} \\
+
+
+\end{document}
