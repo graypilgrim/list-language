@@ -45,19 +45,21 @@
 \keyword{==}, \keyword{!=}, \keyword{<=}, \keyword{>=}, \\
 \keyword{\&\&}, \keyword{||}, \\
 \keyword{;}
-
+\newpage
 \section{Gramatyka}
 \code{program} \textrightarrow \code{funsDefs} \\
 \code{funsDefs} \textrightarrow \code{funDef | funDef funsDefs} \\
-\code{funDef} \textrightarrow \code{funDecl\{ exprs \} | funDecl\{ exprs return val\}} \\
+\code{funDef} \textrightarrow \code{funDecl\{ exprs \} | funDecl\{ exprs retExpr \}} \\
 \code{funDecl} \textrightarrow \code{varDecl( args )} \\
 \code{args} \textrightarrow \code{varDecl | varDecl, args} \\
-\code{exprs} \textrightarrow \code{expr | expr\keyword{;} exprs} \\
-\code{expr} \textrightarrow \code{condExpr | loopExpr | callExpr | indexExpr | varDef | varDecl | listExpr} \\
+\code{exprs} \textrightarrow \code{expr | expr\keyword{;} | \keyword{\{} exprs \keyword{\}} | expr\keyword{;} exprs} \\
+\code{expr} \textrightarrow \code{condExpr | loopExpr | callExpr | indexExpr | varDef | varDecl | listExpr | retExpr} \\
 
 \code{condExpr} \textrightarrow \code{ifExpr | ifExpr elseExpr} \\
 \code{ifExpr} \textrightarrow \code{\keyword{if (} logicStmt \keyword{)} exprs } \\
 \code{elseExpr} \textrightarrow \code{\keyword{else} exprs} \\
+\code{retExpr} \textrightarrow \code{\keyword{return} val} \\
+\code{callExpr} \textrightarrow \code{identifier\keyword{(}vals\keyword{)}} \\
 \code{logicStmt} \textrightarrow \code{val logicOp val | logicStmt logicTie logicStmt} \\
 
 \code{loopExpr} \textrightarrow \code{whileExpr | forExpr} \\
@@ -69,6 +71,7 @@
 
 \code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
 \code{varDecl} \textrightarrow \code{type identifier} \\
+\code{vals} \textrightarrow \code{val | val, vals }
 \code{val} \textrightarrow \code{lVal | rVal} \\
 \code{lVal} \textrightarrow \code{identifier | indexExpr} \\
 \code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | identifier mathOp val | number | boolVal} \\
