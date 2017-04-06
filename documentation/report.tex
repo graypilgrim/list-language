@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage{secdot}
 \sectiondot{subsection}
 \usepackage{scrextend}
@@ -66,7 +67,7 @@
 \code{whileExpr} \textrightarrow \code{\keyword{while (} logicStmt \keyword{)} exprs} \\
 \code{forExpr} \textrightarrow \code{\keyword{for (} varDef \keyword{;} logicStmt \keyword{;} assignExpr \keyword{)} exprs}
 
-\code{listExpr} \textrightarrow \code{\keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter condExpr \keyword{]} } \\
+\code{listExpr} \textrightarrow \code{\keyword{[]} | \keyword{[} number \keyword{]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter condExpr \keyword{]} } \\
 \code{basicListIter} \textrightarrow \code{ expr \keyword{for} identifier \keyword{in} identifier} \\
 
 \code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
@@ -74,7 +75,7 @@
 \code{vals} \textrightarrow \code{val | val, vals }
 \code{val} \textrightarrow \code{lVal | rVal} \\
 \code{lVal} \textrightarrow \code{identifier | indexExpr} \\
-\code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | identifier mathOp val | number | boolVal} \\
+\code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | listExpr | identifier mathOp val | number | boolVal} \\
 \code{indexExpr} \textrightarrow \code{identifier\keyword{[}number\keyword{]}} \\
 
 \code{identifier} \textrightarrow \code{letter*} \\
@@ -85,5 +86,46 @@
 \code{number} \textrightarrow \code{digit* | digit*.digit*} \\
 \code{digit} \textrightarrow \code{\keyword{0} \ldots \keyword{9}} \\
 
+\newpage
+\section{Przykłady}
+\subsection{Proste użycie wywołania funkcji}
+\begin{lstlisting}[tabsize=2]
+int add(int x, int y) {
+	return x + y;
+}
+
+int main() {
+	int a = 6;
+	int b = 7;
+	int wynik = add(a, b);
+}
+\end{lstlisting}
+
+\subsection{Funkcja rekurencyjna}
+\begin{lstlisting}[tabsize=2]
+int factorial(int x) {
+	if (x == 1)
+		return 1;
+	return x*factorial(x-1);
+}
+\end{lstlisting}
+
+\subsection{Operacje na listach}
+\begin{lstlisting}[tabsize=2]
+int factorial(int x) {
+	if (x <= 1)
+		return 1;
+	return x*factorial(x-1);
+}
+
+int main() {
+	list a = [5];
+	for (int i = 0; i < 5; i=i+1)
+		a[i] = i;
+
+	list f = [factorial(i) for i in a];
+}
+
+\end{lstlisting}
 
 \end{document}
