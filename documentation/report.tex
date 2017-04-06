@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
-\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage[top=3cm, bottom=3cm, left=3cm, right=3cm]{geometry}
 \usepackage{secdot}
 \sectiondot{subsection}
 \usepackage{scrextend}
@@ -67,19 +67,22 @@
 \code{whileExpr} \textrightarrow \code{\keyword{while (} logicStmt \keyword{)} exprs} \\
 \code{forExpr} \textrightarrow \code{\keyword{for (} varDef \keyword{;} logicStmt \keyword{;} assignExpr \keyword{)} exprs}
 
-\code{listExpr} \textrightarrow \code{\keyword{[]} | \keyword{[} number \keyword{]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter condExpr \keyword{]} } \\
+\code{listExpr} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter condExpr \keyword{]} } \\
 \code{basicListIter} \textrightarrow \code{ expr \keyword{for} identifier \keyword{in} identifier} \\
 
 \code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
 \code{varDecl} \textrightarrow \code{type identifier} \\
+\code{listDecl} \textrightarrow \code{\keyword{list(}type\keyword{)} identifier} \\
 \code{vals} \textrightarrow \code{val | val, vals }
 \code{val} \textrightarrow \code{lVal | rVal} \\
 \code{lVal} \textrightarrow \code{identifier | indexExpr} \\
-\code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | listExpr | lVal mathOp rVal | number | boolVal} \\
+\code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | listExpr | val operator val | lVal logicTie rVal | number | boolVal} \\
 \code{indexExpr} \textrightarrow \code{identifier\keyword{[}identifier\keyword{]} | identifier\keyword{[}intNumber\keyword{]}} \\
+\code{assignExpr} \textrightarrow \code{identifier \keyword{=} rVal} \\
 
 \code{identifier} \textrightarrow \code{letter*} \\
-\code{type} \textrightarrow \code{\keyword{int} | \keyword{float} | \keyword{list} | \keyword{bool} | \keyword{void}} \\
+\code{type} \textrightarrow \code{\keyword{int} | \keyword{float} | \keyword{bool} | \keyword{void}} \\
+\code{operator} \textrightarrow \code{logicOp | mathOp} \\
 \code{logicOp} \textrightarrow \code{\keyword{==} | \keyword{!=} | \keyword{<=} | \keyword{>=}} \\
 \code{logicTie} \textrightarrow \code{\keyword{\&\&} | \keyword{||}} \\
 \code{mathOp} \textrightarrow \code{\keyword{=} | \keyword{+} | \keyword{-} | \keyword{*} | \keyword{/}} \\
@@ -124,11 +127,11 @@ int factorial(int x) {
 }
 
 int main() {
-	list a = [5];
+	list(int) a = [5];
 	for (int i = 0; i < 5; i=i+1)
 		a[i] = i;
 
-	list f = [factorial(i) for i in a];
+	list(int) f = [factorial(i) for i in a];
 
 	return false;
 }
