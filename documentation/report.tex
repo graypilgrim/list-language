@@ -48,44 +48,50 @@
 \keyword{;}
 \newpage
 \section{Gramatyka}
-\code{program} \textrightarrow \code{funsDefs} \\
+\code{program} \textrightarrow \code{funsDefs | funsDecls} \\
 \code{funsDefs} \textrightarrow \code{funDef | funDef funsDefs} \\
-\code{funDef} \textrightarrow \code{funDecl\{ exprs \} | funDecl\{ exprs retExpr \}} \\
-\code{funDecl} \textrightarrow \code{varDecl( args )} \\
+\code{funDef} \textrightarrow \code{type identifier\{ stmts \} | type identifier\{ stmts retStmt \}} \\
+\code{funsDecls} \textrightarrow \code{funDecl | funsDecls} \\
+\code{funDecl} \textrightarrow \code{type identifier( args ) \keyword{;}} \\
 \code{args} \textrightarrow \code{varDecl | varDecl, args} \\
-\code{exprs} \textrightarrow \code{expr | expr\keyword{;} | \keyword{\{} exprs \keyword{\}} | expr\keyword{;} exprs} \\
-\code{expr} \textrightarrow \code{condExpr | loopExpr | callExpr | indexExpr | varDef | varDecl | listExpr | retExpr} \\
+\code{stmts} \textrightarrow \code{stmt | stmt\keyword{;} | \keyword{\{} stmts \keyword{\}} | stmt\keyword{;} stmts} \\
+\code{stmt} \textrightarrow \code{condStmt | loopStmt | callStmt | indexStmt | varDef | varDecl | listStmt | retStmt | assignStmt} \\
 
-\code{condExpr} \textrightarrow \code{ifExpr | ifExpr elseExpr} \\
-\code{ifExpr} \textrightarrow \code{\keyword{if (} logicStmt \keyword{)} exprs } \\
-\code{elseExpr} \textrightarrow \code{\keyword{else} exprs} \\
-\code{retExpr} \textrightarrow \code{\keyword{return} val} \\
-\code{callExpr} \textrightarrow \code{identifier\keyword{(}vals\keyword{)}} \\
-\code{logicStmt} \textrightarrow \code{val logicOp val | logicStmt logicTie logicStmt} \\
+\code{condStmt} \textrightarrow \code{ifStmt | ifStmt elseStmt} \\
+\code{ifStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)} stmts } \\
+\code{elseStmt} \textrightarrow \code{\keyword{else} stmts} \\
+\code{retStmt} \textrightarrow \code{\keyword{return} val} \\
+\code{callStmt} \textrightarrow \code{identifier\keyword{(}vals\keyword{)}} \\
 
-\code{loopExpr} \textrightarrow \code{whileExpr | forExpr} \\
-\code{whileExpr} \textrightarrow \code{\keyword{while (} logicStmt \keyword{)} exprs} \\
-\code{forExpr} \textrightarrow \code{\keyword{for (} varDef \keyword{;} logicStmt \keyword{;} assignExpr \keyword{)} exprs}
+\code{loopStmt} \textrightarrow \code{whileStmt | forStmt} \\
+\code{whileStmt} \textrightarrow \code{\keyword{while (} expr \keyword{)} stmts} \\
+\code{forStmt} \textrightarrow \code{\keyword{for (} varDef \keyword{;} expr \keyword{;} expr \keyword{)} stmts}
 
-\code{listExpr} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter condExpr \keyword{]} } \\
-\code{basicListIter} \textrightarrow \code{ expr \keyword{for} identifier \keyword{in} identifier} \\
+\code{listStmt} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter listIfStmt \keyword{]} } \\
+\code{listIfStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)}} \\
+\code{basicListIter} \textrightarrow \code{ stmt \keyword{for} identifier \keyword{in} identifier} \\
 
 \code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
 \code{varDecl} \textrightarrow \code{type identifier} \\
 \code{listDecl} \textrightarrow \code{\keyword{list(}type\keyword{)} identifier} \\
 \code{vals} \textrightarrow \code{val | val, vals }
 \code{val} \textrightarrow \code{lVal | rVal} \\
-\code{lVal} \textrightarrow \code{identifier | indexExpr} \\
-\code{rVal} \textrightarrow \code{identifier | callExpr | indexExpr | listExpr | val operator val | lVal logicTie rVal | number | boolVal} \\
-\code{indexExpr} \textrightarrow \code{identifier\keyword{[}identifier\keyword{]} | identifier\keyword{[}intNumber\keyword{]}} \\
-\code{assignExpr} \textrightarrow \code{identifier \keyword{=} rVal} \\
+\code{lVal} \textrightarrow \code{identifier | indexStmt} \\
+\code{rVal} \textrightarrow \code{identifier | callStmt | indexStmt | listStmt | expr | number | boolVal} \\
+\code{indexStmt} \textrightarrow \code{identifier\keyword{[}identifier\keyword{]} | identifier\keyword{[}intNumber\keyword{]}} \\
+\code{assignStmt} \textrightarrow \code{identifier \keyword{=} rVal} \\
+
+\code{expr} \textrightarrow \code{andExpr | andExpr \keyword{||} andExpr} \\
+\code{andExpr} \textrightarrow \code{compExpr | compExpr \keyword{\&\&} compExpr} \\
+\code{compExpr} \textrightarrow \code{sumExpr | sumExpr compOperator sumExpr} \\
+\code{sumExpr} \textrightarrow \code{mulExpr | mulExpr sumOperator mulExpr} \\
+\code{mulExpr} \textrightarrow \code{val | val mulOperator val} \\
 
 \code{identifier} \textrightarrow \code{letter*} \\
 \code{type} \textrightarrow \code{\keyword{int} | \keyword{float} | \keyword{bool} | \keyword{void}} \\
-\code{operator} \textrightarrow \code{logicOp | mathOp} \\
-\code{logicOp} \textrightarrow \code{\keyword{==} | \keyword{!=} | \keyword{<=} | \keyword{>=}} \\
-\code{logicTie} \textrightarrow \code{\keyword{\&\&} | \keyword{||}} \\
-\code{mathOp} \textrightarrow \code{\keyword{=} | \keyword{+} | \keyword{-} | \keyword{*} | \keyword{/}} \\
+\code{sumOperator} \textrightarrow \code{\keyword{+} | \keyword{-}} \\
+\code{mulOperator} \textrightarrow \code{\keyword{*} | \keyword{/}} \\
+\code{compOperator} \textrightarrow \code{\keyword{==} | \keyword{!=} | \keyword{<=} | \keyword{>=}} \\
 \code{letter} \textrightarrow \code{\keyword{A} \ldots \keyword{z}} \\
 \code{number} \textrightarrow \code{intNumber | floatNumber} \\
 \code{intNumber} \textrightarrow \code{digit*} \\
