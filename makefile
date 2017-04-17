@@ -1,12 +1,13 @@
 .DEFAULT_GOAL := all
 
 CXX = g++
-CXXFLAGS = -c -Wall -Werror -pedantic -o2
+CXXFLAGS = -c -Wall -pedantic -o2
 BINARY = main.out
 TESTS_BINARY = tests_main.out
 
 SOURCES = \
 	./src/main.cpp \
+	./src/Lexer.cpp \
 
 OBJECTS=$(SOURCES:.cpp=.o)
 
@@ -16,6 +17,7 @@ $(BINARY): $(OBJECTS)
 
 TESTS_SOURCES = \
 	./tests/tests_main.cpp \
+	./src/Lexer.cpp \
 
 TEST_OBJECTS=$(TESTS_SOURCES:.cpp=.o)
 
