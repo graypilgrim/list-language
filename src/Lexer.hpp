@@ -4,23 +4,22 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <memory>
 
 class Lexer
 {
 public:
-	static Lexer& instance();
-	void openFile(std::string fileName);
-	void setFile(std::ifstream& f);
+	bool openFile(std::string fileName);
+	void setStream(std::shared_ptr<std::istream> f);
 	size_t getLineNo();
 	std::string getAtom();
 	std::string getCurrentLine();
+	bool isStreamSet();
 
 private:
-	Lexer();
-	~Lexer();
-	void closeFile();
+	void readNextLine();
 
-	std::ifstream file;
+	std::shared_ptr<std::istream> input;
 
 	size_t lineNo;
 	std::string currentLine;

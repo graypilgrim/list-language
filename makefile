@@ -18,6 +18,7 @@ $(BINARY): $(OBJECTS)
 TESTS_SOURCES = \
 	./tests/tests_main.cpp \
 	./src/Lexer.cpp \
+	./tests/lexer_tests.cpp \
 
 TEST_OBJECTS=$(TESTS_SOURCES:.cpp=.o)
 

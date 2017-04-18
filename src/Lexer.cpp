@@ -1,34 +1,23 @@
 #include "Lexer.hpp"
 
-Lexer::Lexer()
-:lineNo(1) {
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+bool Lexer::openFile(std::string fileName) {
+	std::shared_ptr<std::ifstream> f(new std::ifstream);
+	f.get()->open(fileName, std::ifstream::in);
+
+	if (f.get()->bad())
+		return false;
+
+
+	input = f;
+	lineNo = 0;
+	readNextLine();
+	return true;
 }
 
-Lexer::~Lexer() {
-	closeFile();
-}
-
-Lexer& Lexer::instance() {
-	static Lexer lexer;
-	return lexer;
-}
-
-void Lexer::openFile(std::string fileName) {
-	closeFile();
-
-	try {
-		file.open(fileName);
-		std::getline(file, currentLine);
-	}
-	catch (const std::exception& e) {
-		std::cout << "No file named: " << fileName << std::endl;
-	}
-}
-
-void Lexer::setFile(std::ifstream& f) {
-	file = std::move(f);
-	lineNo = 1;
+void Lexer::setStream(std::shared_ptr<std::istream> f) {
+	input = f;
+	lineNo = 0;
+	readNextLine();
 }
 
 size_t Lexer::getLineNo() {
@@ -43,12 +32,13 @@ std::string Lexer::getCurrentLine() {
 	return currentLine;
 }
 
-void Lexer::closeFile() {
-	if (file.is_open()) {
-		try {
-			file.close();
-		}
-		catch (...) {
-		}
+void Lexer::readNextLine() {
+	if (!input.get()->eof()) {
+		std::getline(*input.get(), currentLine);
+		++lineNo;
 	}
+}
+
+bool Lexer::isStreamSet() {
+	return input.get() != nullptr;
 }
