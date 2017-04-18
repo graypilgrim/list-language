@@ -35,7 +35,7 @@ TEST_CASE( "OneLineReading" ) {
 	REQUIRE( lexer.getCurrentLine() == exText );
 }
 
-TEST_CASE( "OneWordReading" ) {
+TEST_CASE( "OneWord" ) {
 	Lexer lexer;
 	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
 	auto s = static_cast<std::stringstream*>(exampleStream.get());
@@ -48,7 +48,7 @@ TEST_CASE( "OneWordReading" ) {
 	REQUIRE( result == exText );
 }
 
-TEST_CASE( "TwoWordReading" ) {
+TEST_CASE( "TwoWord" ) {
 	Lexer lexer;
 	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
 	auto s = static_cast<std::stringstream*>(exampleStream.get());
@@ -64,7 +64,7 @@ TEST_CASE( "TwoWordReading" ) {
 	REQUIRE( result2 == exText2 );
 }
 
-TEST_CASE( "WordAndNumberReading" ) {
+TEST_CASE( "WordAndNumber" ) {
 	Lexer lexer;
 	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
 	auto s = static_cast<std::stringstream*>(exampleStream.get());
@@ -78,4 +78,71 @@ TEST_CASE( "WordAndNumberReading" ) {
 
 	REQUIRE( result1 == exText1 );
 	REQUIRE( result2 == exText2 );
+}
+
+TEST_CASE( "VariableDefinition" ) {
+	Lexer lexer;
+	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
+	auto s = static_cast<std::stringstream*>(exampleStream.get());
+
+	std::string exText1("int");
+	std::string exText2("a");
+	std::string exText3("=");
+	std::string exText4("123.123");
+	std::string exText5(";");
+	*s << exText1 << " " << exText2 << exText3 << exText4 << exText5;
+	lexer.setStream(exampleStream);
+	auto result1 = lexer.getNextAtom();
+	auto result2 = lexer.getNextAtom();
+	auto result3 = lexer.getNextAtom();
+	auto result4 = lexer.getNextAtom();
+	auto result5 = lexer.getNextAtom();
+
+	REQUIRE( result1 == exText1 );
+	REQUIRE( result2 == exText2 );
+	REQUIRE( result3 == exText3 );
+	REQUIRE( result4 == exText4 );
+	REQUIRE( result5 == exText5 );
+}
+
+TEST_CASE( "InvalidNumber" ) {
+	Lexer lexer;
+	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
+	auto s = static_cast<std::stringstream*>(exampleStream.get());
+
+	std::string exText("123hello");
+	*s << exText;
+	lexer.setStream(exampleStream);
+
+	bool exceptionCaught = false;
+
+	try
+	{
+		lexer.getNextAtom();
+	}
+	catch (...)
+	{
+		exceptionCaught = true;
+	}
+
+	REQUIRE( exceptionCaught == true );
+}
+
+TEST_CASE( "LogicTies" ) {
+	Lexer lexer;
+	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
+	auto s = static_cast<std::stringstream*>(exampleStream.get());
+
+	std::string exText1("a");
+	std::string exText2("&&");
+	std::string exText3("b");
+	*s << exText1 << " " << exText2 << " " << exText3;
+	lexer.setStream(exampleStream);
+	auto result1 = lexer.getNextAtom();
+	auto result2 = lexer.getNextAtom();
+	auto result3 = lexer.getNextAtom();
+
+	REQUIRE( result1 == exText1 );
+	REQUIRE( result2 == exText2 );
+	REQUIRE( result3 == exText3 );
 }

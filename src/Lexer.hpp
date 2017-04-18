@@ -37,6 +37,7 @@ private:
 	inline bool isWhitespace(char c);
 	inline bool isCommentSign(char c);
 	inline bool isDot(char c);
+	inline bool isLogicTie(char c);
 
 
 	std::shared_ptr<std::istream> input;

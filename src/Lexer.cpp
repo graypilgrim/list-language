@@ -48,6 +48,7 @@ std::string Lexer::getNextAtom() {
 			if (isOperator(sign) || isColon(sign)) {
 				state = LexerState::START;
 				result += sign;
+				++index;
 				return result;
 			}
 
@@ -56,6 +57,17 @@ std::string Lexer::getNextAtom() {
 
 			if (isCommentSign(sign))
 				return result;
+
+			if (isLogicTie(sign)) {
+				if ((index + 1) < currentLine.size() && (currentLine[index + 1] == sign)) {
+					index += 2;
+					result += sign;
+					result += sign;
+					return result;
+				} else {
+					throw std::domain_error("unrecognized operator");
+				}
+			}
 
 			break;
 
@@ -104,6 +116,7 @@ std::string Lexer::getNextAtom() {
 
 			if (isDot(sign)) {
 				state = LexerState::FLOAT_NUMBER;
+				result += sign;
 				if ((index + 1) < currentLine.size() && !isDigit(currentLine[index + 1])) {
 					state = LexerState::START;
 					throw std::domain_error("number expected after dot");
@@ -203,4 +216,8 @@ bool Lexer::isCommentSign(char c) {
 
 bool Lexer::isDot(char c) {
 	return c == '.';
+}
+
+bool Lexer::isLogicTie(char c) {
+	return c == '&' || '|';
 }
