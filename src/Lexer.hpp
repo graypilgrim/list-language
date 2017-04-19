@@ -28,8 +28,6 @@ private:
 	void readNextLine();
 	void resetIndicators();
 
-	void startStateCondition(char c);
-
 	inline bool isLetter(char c);
 	inline bool isDigit(char c);
 	inline bool isOperator(char c);

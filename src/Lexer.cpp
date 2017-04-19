@@ -173,6 +173,7 @@ void Lexer::readNextLine() {
 		currentLine.clear();
 		std::getline(*input.get(), currentLine);
 		++lineNo;
+		index = 0;
 	}
 }
 
@@ -184,10 +185,6 @@ void Lexer::resetIndicators() {
 	lineNo = 0;
 	index = 0;
 	readNextLine();
-}
-
-void Lexer::startStateCondition(char c) {
-
 }
 
 bool Lexer::isLetter(char c) {
