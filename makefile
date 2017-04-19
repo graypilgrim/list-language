@@ -37,6 +37,7 @@ prod : $(BINARY)
 
 clean:
 	@rm -f $(BINARY)
+	@rm -f $(TESTS_BINARY)
 	@rm -f src/*.o
 	@rm -f src/*.gch
 	@rm -f tests/*.o
