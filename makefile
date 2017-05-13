@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 
 CXX = g++
-CXXFLAGS = -c -Wall -pedantic -o2
+CXXFLAGS = -c -Wall -pedantic -O2
 BINARY = main.out
 TESTS_BINARY = tests_main.out
 

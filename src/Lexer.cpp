@@ -10,18 +10,18 @@ Lexer::Lexer(const std::shared_ptr<std::istream> &stream)
 
 void Lexer::setStream(const std::shared_ptr<std::istream> &stream) {
 	input = stream;
-	resetIndicators();
+	currentLineNo = 1;
 }
 
 size_t Lexer::getLineNo() {
-	return lineNo;
+	return currentLineNo;
 }
 
 std::string Lexer::getNextAtom() {
 	std::string result;
-	for (; index < currentLine.size(); ++index) {
-		auto sign = currentLine[index];
+	char sign;
 
+	while (*input >> std::noskipws >> sign) {
 		switch(state) {
 		case START:
 			try {
@@ -65,33 +65,11 @@ std::string Lexer::getNextAtom() {
 		}
 	}
 
-	if (index == currentLine.size())
-		readNextLine();
-
 	return result;
-}
-
-std::string Lexer::getCurrentLine() {
-	return currentLine;
-}
-
-void Lexer::readNextLine() {
-	if (!input.get()->eof()) {
-		currentLine.clear();
-		std::getline(*input.get(), currentLine);
-		++lineNo;
-		index = 0;
-	}
 }
 
 bool Lexer::isStreamSet() {
 	return input.get() != nullptr;
-}
-
-void Lexer::resetIndicators() {
-	lineNo = 0;
-	index = 0;
-	readNextLine();
 }
 
 bool Lexer::inStartState(const char &sign, std::string &result) {
@@ -110,19 +88,24 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 	if (isOperator(sign) || isColon(sign)) {
 		state = LexerState::START;
 		result += sign;
-		++index;
+		// ++index;
 		return true;
 	}
 
-	if (isWhitespace(sign))
+	if (isNewLine(sign) || isWhitespace(sign))
 		return false;
 
-	if (isCommentSign(sign))
+	if (isCommentSignSkipMaybe(sign))
 		return true;
 
 	if (isLogicTie(sign)) {
-		if ((index + 1) < currentLine.size() && (currentLine[index + 1] == sign)) {
-			index += 2;
+		char nextSign;
+
+		if (!(*input >> std::noskipws >> nextSign))
+			return false;
+
+		if (nextSign == sign) {
+			// index += 2;
 			result += sign;
 			result += sign;
 			return true;
@@ -135,22 +118,18 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 }
 
 bool Lexer::inWordState(const char &sign, std::string &result) {
-	if (isLetter(sign)) {
-		result += sign;
-		return false;
-	}
-
-	if (isDigit(sign)) {
+	if (isLetter(sign) || isDigit(sign)) {
 		result += sign;
 		return false;
 	}
 
 	if (isOperator(sign) || isColon(sign) || isWhitespace(sign)) {
 		state = LexerState::START;
+		input->unget();
 		return true;
 	}
 
-	if (isCommentSign(sign))
+	if (isCommentSignSkipMaybe(sign))
 		return true;
 
 	return false;
@@ -169,22 +148,29 @@ bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 
 	if (isOperator(sign) || isColon(sign)) {
 		state = LexerState::START;
+		input->unget();
 		return true;
 	}
 
-	if (isWhitespace(sign))
+	if (isWhitespace(sign) || isCommentSignSkipMaybe(sign)) {
+		input->unget();
 		return true;
+	}
 
-	if (isCommentSign(sign))
-		return true;
 
 	if (isDot(sign)) {
 		state = LexerState::FLOAT_NUMBER;
 		result += sign;
-		if ((index + 1) < currentLine.size() && !isDigit(currentLine[index + 1])) {
-			state = LexerState::START;
+
+		char nextSign;
+		if (!(*input >> std::noskipws >> nextSign))
+			return false;
+
+		if (!isDigit(nextSign))
 			throw std::domain_error("number expected after dot");
-		}
+
+		state = LexerState::START;
+		result += nextSign;
 
 		return false;
 	}
@@ -205,14 +191,15 @@ bool Lexer::inFloatNumberState(const char &sign, std::string &result) {
 
 	if (isOperator(sign) || isColon(sign)) {
 		state = LexerState::START;
+		input->unget();
 		return true;
 	}
 
-	if (isWhitespace(sign))
+	if (isWhitespace(sign) || isCommentSignSkipMaybe(sign)) {
+		input->unget();
 		return true;
+	}
 
-	if (isCommentSign(sign))
-		return true;
 
 	if (isDot(sign)) {
 		state = LexerState::START;
@@ -220,6 +207,15 @@ bool Lexer::inFloatNumberState(const char &sign, std::string &result) {
 	}
 
 	return false;
+}
+
+void Lexer::skipComment() {
+	char sign;
+
+	while (*input >> std::noskipws >> sign) {
+		if (sign == '\n')
+			return;
+	}
 }
 
 bool Lexer::isLetter(char c) {
@@ -238,12 +234,26 @@ bool Lexer::isColon(char c) {
 	return c == ';';
 }
 
+bool Lexer::isNewLine(char c) {
+	if (c == '\n') {
+		++currentLineNo;
+		return true;
+	}
+
+	return false;
+}
+
 bool Lexer::isWhitespace(char c) {
 	return c <= ' ';
 }
 
-bool Lexer::isCommentSign(char c) {
-	return c == '@';
+bool Lexer::isCommentSignSkipMaybe(char c) {
+	if (c == '@') {
+		skipComment();
+		return c == '@';
+	}
+
+	return false;
 }
 
 bool Lexer::isDot(char c) {

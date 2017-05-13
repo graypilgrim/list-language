@@ -26,29 +26,28 @@ public:
 	bool isStreamSet();
 
 private:
-	void readNextLine();
-	void resetIndicators();
 
  	bool inStartState(const char &sign, std::string &result);
 	bool inWordState(const char &sign, std::string &result);
 	bool inIntNumberState(const char &sign, std::string &result);
 	bool inFloatNumberState(const char &sign, std::string &result);
 
+	void skipComment();
+
 	inline bool isLetter(char c);
 	inline bool isDigit(char c);
 	inline bool isOperator(char c);
 	inline bool isColon(char c);
+	inline bool isNewLine(char c);
 	inline bool isWhitespace(char c);
-	inline bool isCommentSign(char c);
+	inline bool isCommentSignSkipMaybe(char c);
 	inline bool isDot(char c);
 	inline bool isLogicTie(char c);
 
 	std::shared_ptr<std::istream> input;
 
-	size_t lineNo;
-	size_t index;
+	size_t currentLineNo;
 	LexerState state;
-	std::string currentLine;
 };
 
 #endif

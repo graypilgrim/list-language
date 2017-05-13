@@ -3,7 +3,7 @@
 #include "lib/catch.hpp"
 #include "../src/Lexer.hpp"
 
-TEST_CASE( "StreamSetting" ) {
+TEST_CASE( "Lexer: StreamSetting" ) {
 	Lexer lexer;
 	REQUIRE( lexer.isStreamSet() == false );
 
@@ -13,7 +13,7 @@ TEST_CASE( "StreamSetting" ) {
 	REQUIRE( lexer.isStreamSet() == true );
 }
 
-TEST_CASE( "Working with mocked stream" ) {
+TEST_CASE( "Lexer: mocked stream" ) {
 	Lexer lexer;
 	std::shared_ptr<std::istream> exampleStream(new std::stringstream);
 	auto s = static_cast<std::stringstream*>(exampleStream.get());
@@ -24,7 +24,6 @@ TEST_CASE( "Working with mocked stream" ) {
 		lexer.setStream(exampleStream);
 
 		REQUIRE( exampleStream.use_count() == 2 );
-		REQUIRE( lexer.getCurrentLine() == exText );
 	}
 
 	SECTION( "OneWord" ) {
