@@ -1,165 +1,253 @@
 #include "Parser.hpp"
 
+Parser::Parser()
+	: keywords({"list", "if", "else", "while", "for", "in", "return", "true", "false", "int", "float", "bool", "void"}),
+	types({"int", "float", "bool", "void"})
+{}
+
 Parser::Parser(const std::shared_ptr<Lexer> &lexer)
-	: lexer(lexer)
+	: lexer(lexer),
+	  keywords({"list", "if", "else", "while", "for", "in", "return", "true", "false"}),
+	  types({"int", "float", "bool", "void"})
 {}
 
 void Parser::run() {
+}
+
+void Parser::nextAtom() {
+	atom = lexer->getNextAtom();
+}
+
+void Parser::program() {
+	funsDecls();
+}
+
+void Parser::funsDefs() {
 
 }
 
-void program() {
-	
+void Parser::funDef() {
+	stmts();
 }
 
-void funsDefs() {
-
+void Parser::funsDecls() {
+	funDecl();
 }
 
-void funDef() {
+void Parser::funDecl() {
+	type();
+	identifier();
 
+	nextAtom();
+	if (atom == ";")
+		funsDecls();
+	else if (atom == "=")
+		varDef();
+	else if (atom == "(")
+		args();
+	else
+		throw std::domain_error("Not expected symbol at line: " + lexer->getLineNo());
 }
 
-void fundDecls() {
+void Parser::args() {
+	type();
+	identifier();
 
+	nextAtom();
+	if (atom == ",")
+		args();
+	else if (atom == ")")
+		return;
+	else
+		throw std::domain_error("Closing paranthesis expected at line: " + lexer->getLineNo());
 }
 
-void fundDecl() {
-
+void Parser::stmts() {
+	stmt();
 }
 
-void args() {
+void Parser::stmt() {
+	nextAtom();
 
+	if (atom == "if")
+		condStmt();
+	else if (atom == "for")
+		forStmt();
+	else if (atom == "while")
+		whileStmt();
+	else if (atom == "[")
+		listStmt();
+	else if (atom == "return")
+		retStmt();
+	else {
+		auto it = types.find(atom);
+		if (it != types.end())
+			varDecl();
+		else {
+			identifier();
+			auto atom = lexer->getNextAtom();
+
+			if (atom == "[")
+				indexStmt();
+			else if (atom == "(")
+				callStmt();
+			else if (atom == "=")
+				assignStmt();
+		}
+	}
 }
 
-void stmts() {
+void Parser::condStmt() {
+	ifStmt();
 
+	auto atom = lexer->getNextAtom();
+	if (atom == "else")
+		elseStmt();
+	else {
+		lexer->ungetAtom();
+		stmts();
+	}
 }
 
-void stmt() {
-
-}
-
-void condStmt() {
-
-}
-
-void loppStmt() {
-
-}
-
-void whileStmt() {
-
-}
-
-void forStmt() {
-
-}
-
-void callStmt() {
-
-}
-
-void indexStmt() {
-
-}
-
-void varDef() {
-
-}
-
-void varDecl() {
-
-}
-
-void listStmt() {
-
-}
-
-void basicListIter() {
-
-}
-
-void listIfStmt() {
-
-}
-
-void retStmt() {
-
-}
-
-void assignStmt() {
-
-}
-
-void ifStmt() {
-
-}
-
-void elseStmt() {
+void Parser::loppStmt() {
 
 }
 
-void expr() {
+void Parser::whileStmt() {
+	auto atom = lexer->getNextAtom();
+	if (atom != "(")
+		throw std::domain_error("Paranthesis expected at line " + lexer->getCurrentLine());
+
+	expr();
+
+	atom = lexer->getNextAtom();
+	if (atom != ")")
+		throw std::domain_error("Paranthesis expected at line " + lexer->getCurrentLine());
+
+	atom = lexer->getNextAtom();
+	if (atom == "{")
+		stmts();
+	else
+		stmt();
+}
+
+void Parser::forStmt() {
 
 }
 
-void andExpr() {
+void Parser::callStmt() {
 
 }
 
-void compExpr() {
+void Parser::indexStmt() {
 
 }
 
-void sumExpr() {
+void Parser::varDef() {
 
 }
 
-void mulExpr() {
+void Parser::varDecl() {
 
 }
 
-void sumOperator() {
+void Parser::listStmt() {
 
 }
 
-void mulOperator() {
+void Parser::basicListIter() {
 
 }
 
-void compOperator() {
+void Parser::listIfStmt() {
 
 }
 
-void vals() {
+void Parser::retStmt() {
 
 }
 
-void val() {
+void Parser::assignStmt() {
 
 }
 
-void lVal() {
+void Parser::ifStmt() {
 
 }
 
-void rVal() {
+void Parser::elseStmt() {
 
 }
 
-void type() {
+void Parser::expr() {
 
 }
 
-void identifier() {
+void Parser::andExpr() {
 
 }
 
-void intNumber() {
+void Parser::compExpr() {
 
 }
 
-void floatNumber() {
+void Parser::sumExpr() {
+
+}
+
+void Parser::mulExpr() {
+
+}
+
+void Parser::sumOperator() {
+
+}
+
+void Parser::mulOperator() {
+
+}
+
+void Parser::compOperator() {
+
+}
+
+void Parser::vals() {
+
+}
+
+void Parser::val() {
+
+}
+
+void Parser::lVal() {
+
+}
+
+void Parser::rVal() {
+
+}
+
+void Parser::type() {
+	auto atom = lexer->getNextAtom();
+	auto t = types.find(atom);
+
+	if (t == types.end())
+		throw std::domain_error("Type expected at line: " + lexer->getLineNo());
+}
+
+void Parser::identifier() {
+	auto atom = lexer->getNextAtom();
+
+	auto t = types.find(atom);
+	auto id = keywords.find(atom);
+	if (t != types.end() || id != keywords.end())
+		throw std::domain_error("Identifier expected at line: " + lexer->getLineNo());
+}
+
+void Parser::intNumber() {
+
+}
+
+void Parser::floatNumber() {
 
 }

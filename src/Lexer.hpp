@@ -22,6 +22,7 @@ public:
 	void setStream(const std::shared_ptr<std::istream> &f);
 	size_t getLineNo();
 	std::string getNextAtom();
+	void ungetAtom();
 	std::string getCurrentLine();
 	bool isStreamSet();
 
@@ -48,6 +49,9 @@ private:
 
 	size_t currentLineNo;
 	LexerState state;
+
+	bool ungetFlag;
+	std::string cachedAtom;
 };
 
 #endif

@@ -5,21 +5,25 @@
 #include "Lexer.hpp"
 
 #include <vector>
+#include <set>
+#include <unordered_map>
 #include <memory>
 #include <stdexcept>
 
 class Parser
 {
-	Parser() = default;
+	Parser();
 	Parser(const std::shared_ptr<Lexer> &lexer);
 	void run();
 
 private:
+	void nextAtom();
+
 	void program();
 	void funsDefs();
 	void funDef();
-	void fundDecls();
-	void fundDecl();
+	void funsDecls();
+	void funDecl();
 	void args();
 	void stmts();
 	void stmt();
@@ -55,9 +59,12 @@ private:
 	void intNumber();
 	void floatNumber();
 
-	//TODO: keyword collection
-	std::vector<GlobalItem> globalItems;
+	std::string atom;
+
 	std::shared_ptr<Lexer> lexer;
+	std::set<std::string> keywords;
+	std::set<std::string> types;
+	std::unordered_map<std::string, size_t> globalItems;
 };
 
 #endif

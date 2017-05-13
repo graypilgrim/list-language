@@ -1,11 +1,11 @@
 #include "Lexer.hpp"
 
 Lexer::Lexer()
-	: state(LexerState::START)
+	: state(LexerState::START), ungetFlag(false)
 {}
 
 Lexer::Lexer(const std::shared_ptr<std::istream> &stream)
-	: input(stream), state(LexerState::START)
+	: input(stream), state(LexerState::START), ungetFlag(false)
 {}
 
 void Lexer::setStream(const std::shared_ptr<std::istream> &stream) {
@@ -18,6 +18,11 @@ size_t Lexer::getLineNo() {
 }
 
 std::string Lexer::getNextAtom() {
+	if (ungetFlag) {
+		ungetFlag = false;
+		return cachedAtom;
+	}
+
 	std::string result;
 	char sign;
 
@@ -65,7 +70,12 @@ std::string Lexer::getNextAtom() {
 		}
 	}
 
+	cachedAtom = result;
 	return result;
+}
+
+void Lexer::ungetAtom() {
+	ungetFlag = true;
 }
 
 bool Lexer::isStreamSet() {
