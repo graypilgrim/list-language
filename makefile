@@ -1,23 +1,28 @@
 .DEFAULT_GOAL := all
 
 CXX = g++
-CXXFLAGS = -c -Wall -pedantic -O2
+CXXFLAGS = -c -Wall -Wpedantic -O2
 BINARY = main.out
 TESTS_BINARY = tests_main.out
 
 SOURCES = \
-	./src/main.cpp \
 	./src/Lexer.cpp \
+	./src/GlobalItem.cpp \
+	./src/Parser.cpp \
 
-OBJECTS=$(SOURCES:.cpp=.o)
+PROD_SOURCES = \
+	$(SOURCES) \
+	./src/main.cpp \
+
+PROD_OBJECTS=$(PROD_SOURCES:.cpp=.o)
 
 $(BINARY): $(OBJECTS)
 	$(CXX) $^ -o $@
 
 
 TESTS_SOURCES = \
+	$(SOURCES) \
 	./tests/tests_main.cpp \
-	./src/Lexer.cpp \
 	./tests/lexer_tests.cpp \
 
 TEST_OBJECTS=$(TESTS_SOURCES:.cpp=.o)
