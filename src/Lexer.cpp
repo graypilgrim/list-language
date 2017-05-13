@@ -218,23 +218,23 @@ void Lexer::skipComment() {
 	}
 }
 
-bool Lexer::isLetter(char c) {
+bool Lexer::isLetter(const char &c) {
 	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-bool Lexer::isDigit(char c) {
+bool Lexer::isDigit(const char &c) {
 	return c >= '0' && c <= '9';
 }
 
-bool Lexer::isOperator(char c) {
+bool Lexer::isOperator(const char &c) {
 	return c == '=' || c == '+' || c == '-' || c == '*' || c == '/';
 }
 
-bool Lexer::isColon(char c) {
+bool Lexer::isColon(const char &c) {
 	return c == ';';
 }
 
-bool Lexer::isNewLine(char c) {
+bool Lexer::isNewLine(const char &c) {
 	if (c == '\n') {
 		++currentLineNo;
 		return true;
@@ -243,11 +243,11 @@ bool Lexer::isNewLine(char c) {
 	return false;
 }
 
-bool Lexer::isWhitespace(char c) {
+bool Lexer::isWhitespace(const char &c) {
 	return c <= ' ';
 }
 
-bool Lexer::isCommentSignSkipMaybe(char c) {
+bool Lexer::isCommentSignSkipMaybe(const char &c) {
 	if (c == '@') {
 		skipComment();
 		return c == '@';
@@ -256,10 +256,10 @@ bool Lexer::isCommentSignSkipMaybe(char c) {
 	return false;
 }
 
-bool Lexer::isDot(char c) {
+bool Lexer::isDot(const char &c) {
 	return c == '.';
 }
 
-bool Lexer::isLogicTie(char c) {
+bool Lexer::isLogicTie(const char &c) {
 	return c == '&' || '|';
 }

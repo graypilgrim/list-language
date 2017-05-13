@@ -34,15 +34,15 @@ private:
 
 	void skipComment();
 
-	inline bool isLetter(char c);
-	inline bool isDigit(char c);
-	inline bool isOperator(char c);
-	inline bool isColon(char c);
-	inline bool isNewLine(char c);
-	inline bool isWhitespace(char c);
-	inline bool isCommentSignSkipMaybe(char c);
-	inline bool isDot(char c);
-	inline bool isLogicTie(char c);
+	inline bool isLetter(const char &c);
+	inline bool isDigit(const char &c);
+	inline bool isOperator(const char &c);
+	inline bool isColon(const char &c);
+	inline bool isNewLine(const char &c);
+	inline bool isWhitespace(const char &c);
+	inline bool isCommentSignSkipMaybe(const char &c);
+	inline bool isDot(const char &c);
+	inline bool isLogicTie(const char &c);
 
 	std::shared_ptr<std::istream> input;
 
