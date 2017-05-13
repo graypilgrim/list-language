@@ -1,24 +1,15 @@
 #include "Lexer.hpp"
 
 Lexer::Lexer()
-:state(LexerState::START)
+	: state(LexerState::START)
 {}
 
-bool Lexer::openFile(std::string fileName) {
-	std::shared_ptr<std::ifstream> f(new std::ifstream);
-	f.get()->open(fileName, std::ifstream::in);
+Lexer::Lexer(const std::shared_ptr<std::istream> &stream)
+	: input(stream), state(LexerState::START)
+{}
 
-	if (f.get()->bad())
-		return false;
-
-
-	input = f;
-	resetIndicators();
-	return true;
-}
-
-void Lexer::setStream(std::shared_ptr<std::istream> f) {
-	input = f;
+void Lexer::setStream(const std::shared_ptr<std::istream> &stream) {
+	input = stream;
 	resetIndicators();
 }
 
@@ -33,125 +24,41 @@ std::string Lexer::getNextAtom() {
 
 		switch(state) {
 		case START:
-			if (isLetter(sign)) {
-				state = LexerState::WORD;
-				result += sign;
-				break;
-			}
-
-			if (isDigit(sign)) {
-				state = LexerState::INT_NUMBER;
-				result += sign;
-				break;
-			}
-
-			if (isOperator(sign) || isColon(sign)) {
-				state = LexerState::START;
-				result += sign;
-				++index;
-				return result;
-			}
-
-			if (isWhitespace(sign))
-				break;
-
-			if (isCommentSign(sign))
-				return result;
-
-			if (isLogicTie(sign)) {
-				if ((index + 1) < currentLine.size() && (currentLine[index + 1] == sign)) {
-					index += 2;
-					result += sign;
-					result += sign;
+			try {
+				if (inStartState(sign, result))
 					return result;
-				} else {
-					throw std::domain_error("unrecognized operator");
-				}
+			} catch (std::domain_error &e) {
+				throw e;
 			}
 
 			break;
 
 		case WORD:
-			if (isLetter(sign)) {
-				result += sign;
-				break;
+			try {
+				if (inWordState(sign, result))
+					return result;
+			} catch (std::domain_error &e) {
+				throw e;
 			}
-
-			if (isDigit(sign)) {
-				result += sign;
-				break;
-			}
-
-			if (isOperator(sign) || isColon(sign) || isWhitespace(sign)) {
-				state = LexerState::START;
-				return result;
-			}
-
-			if (isCommentSign(sign))
-				return result;
 
 			break;
 
 		case INT_NUMBER:
-			if (isLetter(sign)) {
-				state = LexerState::START;
-				throw std::domain_error("letter not expected");
-			}
-
-			if (isDigit(sign)) {
-				result += sign;
-				break;
-			}
-
-			if (isOperator(sign) || isColon(sign)) {
-				state = LexerState::START;
-				return result;
-			}
-
-			if (isWhitespace(sign))
-				return result;
-
-			if (isCommentSign(sign))
-				return result;
-
-			if (isDot(sign)) {
-				state = LexerState::FLOAT_NUMBER;
-				result += sign;
-				if ((index + 1) < currentLine.size() && !isDigit(currentLine[index + 1])) {
-					state = LexerState::START;
-					throw std::domain_error("number expected after dot");
-				}
-
-				break;
+			try {
+				if (inIntNumberState(sign, result))
+					return result;
+			} catch (std::domain_error &e) {
+				throw e;
 			}
 
 			break;
 
 		case FLOAT_NUMBER:
-			if (isLetter(sign)) {
-				state = LexerState::START;
-				throw std::domain_error("letter not expected");
-			}
-
-			if (isDigit(sign)) {
-				result += sign;
-				break;
-			}
-
-			if (isOperator(sign) || isColon(sign)) {
-				state = LexerState::START;
-				return result;
-			}
-
-			if (isWhitespace(sign))
-				return result;
-
-			if (isCommentSign(sign))
-				return result;
-
-			if (isDot(sign)) {
-				state = LexerState::START;
-				throw std::domain_error("second dot not expected");
+			try {
+				if (inFloatNumberState(sign, result))
+					return result;
+			} catch (std::domain_error &e) {
+				throw e;
 			}
 
 			break;
@@ -185,6 +92,134 @@ void Lexer::resetIndicators() {
 	lineNo = 0;
 	index = 0;
 	readNextLine();
+}
+
+bool Lexer::inStartState(const char &sign, std::string &result) {
+	if (isLetter(sign)) {
+		state = LexerState::WORD;
+		result += sign;
+		return false;
+	}
+
+	if (isDigit(sign)) {
+		state = LexerState::INT_NUMBER;
+		result += sign;
+		return false;
+	}
+
+	if (isOperator(sign) || isColon(sign)) {
+		state = LexerState::START;
+		result += sign;
+		++index;
+		return true;
+	}
+
+	if (isWhitespace(sign))
+		return false;
+
+	if (isCommentSign(sign))
+		return true;
+
+	if (isLogicTie(sign)) {
+		if ((index + 1) < currentLine.size() && (currentLine[index + 1] == sign)) {
+			index += 2;
+			result += sign;
+			result += sign;
+			return true;
+		} else {
+			throw std::domain_error("unrecognized operator");
+		}
+	}
+
+	return false;
+}
+
+bool Lexer::inWordState(const char &sign, std::string &result) {
+	if (isLetter(sign)) {
+		result += sign;
+		return false;
+	}
+
+	if (isDigit(sign)) {
+		result += sign;
+		return false;
+	}
+
+	if (isOperator(sign) || isColon(sign) || isWhitespace(sign)) {
+		state = LexerState::START;
+		return true;
+	}
+
+	if (isCommentSign(sign))
+		return true;
+
+	return false;
+}
+
+bool Lexer::inIntNumberState(const char &sign, std::string &result) {
+	if (isLetter(sign)) {
+		state = LexerState::START;
+		throw std::domain_error("letter not expected");
+	}
+
+	if (isDigit(sign)) {
+		result += sign;
+		return false;
+	}
+
+	if (isOperator(sign) || isColon(sign)) {
+		state = LexerState::START;
+		return true;
+	}
+
+	if (isWhitespace(sign))
+		return true;
+
+	if (isCommentSign(sign))
+		return true;
+
+	if (isDot(sign)) {
+		state = LexerState::FLOAT_NUMBER;
+		result += sign;
+		if ((index + 1) < currentLine.size() && !isDigit(currentLine[index + 1])) {
+			state = LexerState::START;
+			throw std::domain_error("number expected after dot");
+		}
+
+		return false;
+	}
+
+	return false;
+}
+
+bool Lexer::inFloatNumberState(const char &sign, std::string &result) {
+	if (isLetter(sign)) {
+		state = LexerState::START;
+		throw std::domain_error("letter not expected");
+	}
+
+	if (isDigit(sign)) {
+		result += sign;
+		return false;
+	}
+
+	if (isOperator(sign) || isColon(sign)) {
+		state = LexerState::START;
+		return true;
+	}
+
+	if (isWhitespace(sign))
+		return true;
+
+	if (isCommentSign(sign))
+		return true;
+
+	if (isDot(sign)) {
+		state = LexerState::START;
+		throw std::domain_error("second dot not expected");
+	}
+
+	return false;
 }
 
 bool Lexer::isLetter(char c) {

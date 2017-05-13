@@ -17,8 +17,9 @@ class Lexer
 {
 public:
 	Lexer();
-	bool openFile(std::string fileName);
-	void setStream(std::shared_ptr<std::istream> f);
+	Lexer(const std::shared_ptr<std::istream> &f);
+
+	void setStream(const std::shared_ptr<std::istream> &f);
 	size_t getLineNo();
 	std::string getNextAtom();
 	std::string getCurrentLine();
@@ -28,6 +29,11 @@ private:
 	void readNextLine();
 	void resetIndicators();
 
+ 	bool inStartState(const char &sign, std::string &result);
+	bool inWordState(const char &sign, std::string &result);
+	bool inIntNumberState(const char &sign, std::string &result);
+	bool inFloatNumberState(const char &sign, std::string &result);
+
 	inline bool isLetter(char c);
 	inline bool isDigit(char c);
 	inline bool isOperator(char c);
@@ -36,7 +42,6 @@ private:
 	inline bool isCommentSign(char c);
 	inline bool isDot(char c);
 	inline bool isLogicTie(char c);
-
 
 	std::shared_ptr<std::istream> input;
 

@@ -3,15 +3,6 @@
 #include "lib/catch.hpp"
 #include "../src/Lexer.hpp"
 
-TEST_CASE( "FileOpening" ) {
-	Lexer lexer;
-	REQUIRE( lexer.isStreamSet() == false );
-
-	lexer.openFile(getenv("_"));
-
-	REQUIRE( lexer.isStreamSet() == true );
-}
-
 TEST_CASE( "StreamSetting" ) {
 	Lexer lexer;
 	REQUIRE( lexer.isStreamSet() == false );
@@ -101,7 +92,7 @@ TEST_CASE( "Working with mocked stream" ) {
 		{
 			lexer.getNextAtom();
 		}
-		catch (...)
+		catch (std::domain_error &e)
 		{
 			exceptionCaught = true;
 		}
