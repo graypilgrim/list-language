@@ -38,12 +38,13 @@ private:
 	inline bool isLetter(const char &c);
 	inline bool isDigit(const char &c);
 	inline bool isOperator(const char &c);
-	inline bool isColon(const char &c);
+	inline bool isSemicolon(const char &c);
 	inline bool isNewLine(const char &c);
 	inline bool isWhitespace(const char &c);
 	inline bool isCommentSignSkipMaybe(const char &c);
 	inline bool isDot(const char &c);
 	inline bool isLogicTie(const char &c);
+	inline bool isLogicOperator(const char &c);
 	inline bool isBracket(const char &c);
 	inline bool isComa(const char &c);
 

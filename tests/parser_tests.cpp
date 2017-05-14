@@ -67,4 +67,84 @@ TEST_CASE( "Parser: mocked stream") {
 
 		REQUIRE( exceptionCaught == false );
 	}
+
+	SECTION( "ListDeclaration - correct") {
+		std::string exText("int fun() { list(bool) var; }" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
+
+	SECTION( "TwoVariablesDeclarations - incorrect") {
+		std::string exText("int fun() { list(bool) var; int b = 314}" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+		}
+
+		REQUIRE( exceptionCaught == true );
+	}
+
+	SECTION( "TwoVariablesDeclarations - correct") {
+		std::string exText("int fun() { list(bool) var; float b = 3.14;}" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+		}
+
+		REQUIRE( exceptionCaught == true );
+	}
+
+	SECTION( "IfStatement - correct") {
+		std::string exText("int fun() { if (a == b) a = b;}" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
 }

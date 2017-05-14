@@ -60,6 +60,12 @@ private:
 	void intNumber();
 	void floatNumber();
 
+	inline bool isAtomNumber();
+	inline bool isAtomBoolVal();
+	inline bool isAtomCompOperator();
+	inline bool isAtomSumOperator();
+	inline bool isAtomMulOperator();
+
 	std::string atom;
 
 	std::shared_ptr<Lexer> lexer;

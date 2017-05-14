@@ -57,7 +57,6 @@ void Parser::funDecl() {
 		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
 
 	if (atom == "{") {
-		nextAtom();
 		funDef();
 	} else if (atom == ";") {
 		nextAtom();
@@ -81,16 +80,20 @@ void Parser::args() {
 }
 
 void Parser::stmts() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom == "{"){
 		nextAtom();
-		stmts();
-	} else if (atom == "}")
-		return;
-	else
+		while (atom != "}")
+			stmt();
+		nextAtom();
+		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << " here: " << atom << std::endl;
+	} else
 		stmt();
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 }
 
 void Parser::stmt() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom == "if") {
 		nextAtom();
 		condStmt();
@@ -129,12 +132,13 @@ void Parser::stmt() {
 }
 
 void Parser::condStmt() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	ifStmt();
 
 	if (atom == "else")
 		elseStmt();
 	else {
-		lexer->ungetAtom();
+		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 		stmts();
 	}
 }
@@ -174,18 +178,30 @@ void Parser::indexStmt() {
 }
 
 void Parser::varDef() {
+	if (isAtomNumber()) {
+		nextAtom();
+	} else if (isAtomBoolVal()) {
+		nextAtom();
+	} else
+		identifier();
 
+	if (atom != ";")
+		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
 }
 
 void Parser::varDecl() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	type();
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	identifier();
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
 	if (atom == "=") {
 		nextAtom();
 		varDef();
 	} else if (atom == ";") {
 		nextAtom();
+		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 		return;
 	} else
 		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
@@ -208,21 +224,36 @@ void Parser::retStmt() {
 }
 
 void Parser::assignStmt() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
+	if (atom == "["){
+		nextAtom();
+		listStmt();
+	} else if (atom == "(") {
+		nextAtom();
+		callStmt();
+	} else
+		val();
+
+	if (atom != ";")
+		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
+	else
+		nextAtom();
 }
 
 void Parser::ifStmt() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom != "(")
 		throw std::domain_error("Opening paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
 
 	nextAtom();
 	expr();
 
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom != ")")
 		throw std::domain_error("Closing paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
 
 	nextAtom();
-	stmts();
 }
 
 void Parser::elseStmt() {
@@ -230,23 +261,45 @@ void Parser::elseStmt() {
 }
 
 void Parser::expr() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
+	andExpr();
+	if (atom == "||") {
+		nextAtom();
+		andExpr();
+	}
 }
 
 void Parser::andExpr() {
-
+	compExpr();
+	if (atom == "&&") {
+		nextAtom();
+		compExpr();
+	}
 }
 
 void Parser::compExpr() {
-
+	sumExpr();
+	if (isAtomCompOperator()) {
+		nextAtom();
+		sumExpr();
+	}
 }
 
 void Parser::sumExpr() {
-
+	mulExpr();
+	if (isAtomSumOperator()) {
+		nextAtom();
+		mulExpr();
+	}
 }
 
 void Parser::mulExpr() {
-
+	val();
+	if (isAtomMulOperator()) {
+		nextAtom();
+		val();
+	}
 }
 
 void Parser::sumOperator() {
@@ -266,7 +319,21 @@ void Parser::vals() {
 }
 
 void Parser::val() {
+	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
+	if (isAtomNumber() || isAtomBoolVal()) {
+		nextAtom();
+	} else {
+		identifier();
+		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
+		if (atom == "(") {
+			nextAtom();
+			callStmt();
+		} else if (atom == "[") {
+			nextAtom();
+			indexStmt();
+		}
+	}
 }
 
 void Parser::lVal() {
@@ -312,4 +379,24 @@ void Parser::intNumber() {
 
 void Parser::floatNumber() {
 
+}
+
+bool Parser::isAtomNumber() {
+	return atom.size() > 0 && atom[0] >= '0' && atom[0] <= '9';
+}
+
+bool Parser::isAtomBoolVal() {
+	return atom == "true" || atom == "false";
+}
+
+bool Parser::isAtomCompOperator() {
+	return atom == "<" || atom == ">" || atom == "==" || atom == "<=" || atom == ">=";
+}
+
+bool Parser::isAtomSumOperator() {
+	return atom == "+" || atom == "-";
+}
+
+bool Parser::isAtomMulOperator() {
+	return atom == "*" || atom == "/";
 }

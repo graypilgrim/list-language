@@ -136,6 +136,21 @@ TEST_CASE( "Lexer: mocked stream" ) {
 		REQUIRE( result3 == exText3 );
 	}
 
+	SECTION( "LogicOperator" ) {
+		std::string exText1("a");
+		std::string exText2("==");
+		std::string exText3("b");
+		*s << exText1 << " " << exText2 << " " << exText3;
+		lexer.setStream(exampleStream);
+		auto result1 = lexer.getNextAtom();
+		auto result2 = lexer.getNextAtom();
+		auto result3 = lexer.getNextAtom();
+
+		REQUIRE( result1 == exText1 );
+		REQUIRE( result2 == exText2 );
+		REQUIRE( result3 == exText3 );
+	}
+
 	SECTION( "TwoWordsInTwoLines" ) {
 		std::string exText1("a");
 		std::string exText2("b");

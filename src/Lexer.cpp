@@ -95,11 +95,6 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 		return false;
 	}
 
-	if (isOperator(sign) || isColon(sign) || isBracket(sign) || isComa(sign)) {
-		result += sign;
-		return true;
-	}
-
 	if (isNewLine(sign) || isWhitespace(sign))
 		return false;
 
@@ -122,6 +117,30 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 		}
 	}
 
+	if (isLogicOperator(sign)) {
+		char nextSign;
+
+		if (!(*input >> std::noskipws >> nextSign))
+			return false;
+
+		if ((sign == '<' || sign == '>' || sign == '=') && nextSign == '='){
+			result += sign;
+			result += nextSign;
+			return true;
+		} else if (sign == '<' || sign == '>') {
+			input->unget();
+			result += sign;
+			return true;
+		} else if (sign == '=') {
+			input->unget();
+		}
+	}
+
+	if (isOperator(sign) || isSemicolon(sign) || isBracket(sign) || isComa(sign)) {
+		result += sign;
+		return true;
+	}
+
 	return false;
 }
 
@@ -131,7 +150,7 @@ bool Lexer::inWordState(const char &sign, std::string &result) {
 		return false;
 	}
 
-	if (isOperator(sign) || isColon(sign) || isWhitespace(sign) || isBracket(sign) || isComa(sign)) {
+	if (isOperator(sign) || isSemicolon(sign) || isWhitespace(sign) || isBracket(sign) || isComa(sign)) {
 		state = LexerState::START;
 		input->unget();
 		return true;
@@ -154,7 +173,7 @@ bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 		return false;
 	}
 
-	if (isOperator(sign) || isColon(sign) || isComa(sign)) {
+	if (isOperator(sign) || isSemicolon(sign) || isComa(sign)) {
 		state = LexerState::START;
 		input->unget();
 		return true;
@@ -197,7 +216,7 @@ bool Lexer::inFloatNumberState(const char &sign, std::string &result) {
 		return false;
 	}
 
-	if (isOperator(sign) || isColon(sign) || isComa(sign)) {
+	if (isOperator(sign) || isSemicolon(sign) || isComa(sign)) {
 		state = LexerState::START;
 		input->unget();
 		return true;
@@ -238,7 +257,7 @@ bool Lexer::isOperator(const char &c) {
 	return c == '=' || c == '+' || c == '-' || c == '*' || c == '/';
 }
 
-bool Lexer::isColon(const char &c) {
+bool Lexer::isSemicolon(const char &c) {
 	return c == ';';
 }
 
@@ -269,7 +288,11 @@ bool Lexer::isDot(const char &c) {
 }
 
 bool Lexer::isLogicTie(const char &c) {
-	return c == '&' || '|';
+	return c == '&' || c == '|';
+}
+
+bool Lexer::isLogicOperator(const char &c) {
+	return c == '<' || c == '>' || c == '=';
 }
 
 bool Lexer::isBracket(const char &c) {
