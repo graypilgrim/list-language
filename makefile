@@ -24,6 +24,7 @@ TESTS_SOURCES = \
 	$(SOURCES) \
 	./tests/tests_main.cpp \
 	./tests/lexer_tests.cpp \
+	./tests/parser_tests.cpp \
 
 TEST_OBJECTS=$(TESTS_SOURCES:.cpp=.o)
 

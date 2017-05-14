@@ -12,6 +12,7 @@
 
 class Parser
 {
+public:
 	Parser();
 	Parser(const std::shared_ptr<Lexer> &lexer);
 	void run();

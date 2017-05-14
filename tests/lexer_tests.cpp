@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "lib/catch.hpp"
 #include "../src/Lexer.hpp"
 
@@ -78,6 +76,30 @@ TEST_CASE( "Lexer: mocked stream" ) {
 		REQUIRE( result3 == exText3 );
 		REQUIRE( result4 == exText4 );
 		REQUIRE( result5 == exText5 );
+	}
+
+	SECTION( "FunctionDeclaration" ) {
+		std::string exText1("int");
+		std::string exText2("a");
+		std::string exText3("(");
+		std::string exText4(")");
+		std::string exText5("=");
+		std::string exText6(";");
+		*s << exText1 << " " << exText2 << exText3 << exText4 << exText5 << exText6;
+		lexer.setStream(exampleStream);
+		auto result1 = lexer.getNextAtom();
+		auto result2 = lexer.getNextAtom();
+		auto result3 = lexer.getNextAtom();
+		auto result4 = lexer.getNextAtom();
+		auto result5 = lexer.getNextAtom();
+		auto result6 = lexer.getNextAtom();
+
+		REQUIRE( result1 == exText1 );
+		REQUIRE( result2 == exText2 );
+		REQUIRE( result3 == exText3 );
+		REQUIRE( result4 == exText4 );
+		REQUIRE( result5 == exText5 );
+		REQUIRE( result6 == exText6 );
 	}
 
 	SECTION( "InvalidNumber" ) {

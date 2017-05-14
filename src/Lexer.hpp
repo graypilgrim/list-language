@@ -44,6 +44,8 @@ private:
 	inline bool isCommentSignSkipMaybe(const char &c);
 	inline bool isDot(const char &c);
 	inline bool isLogicTie(const char &c);
+	inline bool isBracket(const char &c);
+	inline bool isComa(const char &c);
 
 	std::shared_ptr<std::istream> input;
 
