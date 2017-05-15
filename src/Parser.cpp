@@ -66,7 +66,6 @@ void Parser::funDecl() {
 }
 
 void Parser::args() {
-	//
 	type();
 	identifier();
 
@@ -178,6 +177,8 @@ void Parser::varDef() {
 
 	if (atom != ";")
 		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
+
+	nextAtom();
 }
 
 void Parser::varDecl() {
@@ -189,7 +190,6 @@ void Parser::varDecl() {
 		varDef();
 	} else if (atom == ";") {
 		nextAtom();
-		return;
 	} else
 		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
 }
