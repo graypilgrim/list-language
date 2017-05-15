@@ -158,6 +158,24 @@ void Parser::forStmt() {
 
 void Parser::callStmt() {
 
+	if (atom == ")") {
+		nextAtom();
+		return;
+	}
+
+	while (atom != ""){
+		expr();
+
+		if (atom == ",") {
+			nextAtom();
+		} else if (atom == ")") {
+			nextAtom();
+			break;
+		} else
+			throw std::domain_error("Unexpected symmbol at line " + lexer->getLineNo());
+	}
+
+	semicolon();
 }
 
 void Parser::indexStmt() {
