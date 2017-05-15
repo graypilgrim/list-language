@@ -130,10 +130,11 @@ void Parser::stmt() {
 
 void Parser::condStmt() {
 	ifStmt();
+	stmts();
 
-	if (atom == "else")
+	if (atom == "else") {
+		nextAtom();
 		elseStmt();
-	else {
 		stmts();
 	}
 }
@@ -280,7 +281,10 @@ void Parser::ifStmt() {
 }
 
 void Parser::elseStmt() {
-
+	if (atom == "if") {
+		nextAtom();
+		condStmt();
+	}
 }
 
 void Parser::expr() {
