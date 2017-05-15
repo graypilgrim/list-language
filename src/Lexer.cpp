@@ -180,10 +180,9 @@ bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 	}
 
 	if (isWhitespace(sign) || isCommentSignSkipMaybe(sign)) {
-		input->unget();
+		state = LexerState::START;
 		return true;
 	}
-
 
 	if (isDot(sign)) {
 		state = LexerState::FLOAT_NUMBER;
@@ -296,7 +295,7 @@ bool Lexer::isLogicOperator(const char &c) {
 }
 
 bool Lexer::isBracket(const char &c) {
-	return c == '(' || c == ')' || c == '{' || c == '}';
+	return c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']';
 }
 
 bool Lexer::isComa(const char &c) {

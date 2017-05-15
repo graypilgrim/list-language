@@ -195,15 +195,40 @@ void Parser::varDecl() {
 }
 
 void Parser::listStmt() {
+	basicListIter();
 
+	if (atom == "if") {
+		nextAtom();
+		listIfStmt();
+	}
+
+	if (atom != "]")
+		throw std::domain_error("Closing bracket expected at line: " + std::to_string(lexer->getLineNo()));
+
+	nextAtom();
+	if (atom != ";")
+		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
+
+	nextAtom();
 }
 
 void Parser::basicListIter() {
+	expr();
+	if (atom != "for")
+		throw std::domain_error("Iteration statement expected at line: " + std::to_string(lexer->getLineNo()));
 
+	nextAtom();
+	identifier();
+
+	if (atom != "in")
+		throw std::domain_error("\"in\" expected at line: " + std::to_string(lexer->getLineNo()));
+
+	nextAtom();
+	identifier();
 }
 
 void Parser::listIfStmt() {
-
+	ifStmt();
 }
 
 void Parser::retStmt() {
@@ -243,7 +268,6 @@ void Parser::elseStmt() {
 }
 
 void Parser::expr() {
-
 	andExpr();
 	if (atom == "||") {
 		nextAtom();
@@ -320,7 +344,6 @@ void Parser::lVal() {
 }
 
 void Parser::rVal() {
-
 }
 
 void Parser::type() {

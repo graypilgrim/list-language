@@ -178,4 +178,33 @@ TEST_CASE( "Lexer: mocked stream" ) {
 		REQUIRE( result2 == exText2 );
 		REQUIRE( result3 == "");
 	}
+	SECTION( "ListStatement" ) {
+		std::string exText1("[");
+		std::string exText2("i");
+		std::string exText3("+");
+		std::string exText4("3");
+		std::string exText5("for");
+		std::string exText6("i");
+		std::string exText7("in");
+		std::string exText8("a");
+		*s << exText1 << " " << exText2 << exText3 << exText4 << " " << exText5 << " " << exText6 << " " << exText7 << " " << exText8;
+		lexer.setStream(exampleStream);
+		auto result1 = lexer.getNextAtom();
+		auto result2 = lexer.getNextAtom();
+		auto result3 = lexer.getNextAtom();
+		auto result4 = lexer.getNextAtom();
+		auto result5 = lexer.getNextAtom();
+		auto result6 = lexer.getNextAtom();
+		auto result7 = lexer.getNextAtom();
+		auto result8 = lexer.getNextAtom();
+
+		REQUIRE( result1 == exText1 );
+		REQUIRE( result2 == exText2 );
+		REQUIRE( result3 == exText3 );
+		REQUIRE( result4 == exText4 );
+		REQUIRE( result5 == exText5 );
+		REQUIRE( result6 == exText6 );
+		REQUIRE( result7 == exText7 );
+		REQUIRE( result8 == exText8 );
+	}
 }
