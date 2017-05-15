@@ -66,7 +66,7 @@
 
 \code{loopStmt} \textrightarrow \code{whileStmt | forStmt} \\
 \code{whileStmt} \textrightarrow \code{\keyword{while (} expr \keyword{)} stmts} \\
-\code{forStmt} \textrightarrow \code{\keyword{for (} varDef \keyword{;} expr \keyword{;} expr \keyword{)} stmts}
+\code{forStmt} \textrightarrow \code{\keyword{for (} \{varDef | $\epsilon$\} \keyword{;} \{expr | $\epsilon$\} \keyword{;} \{expr | $\epsilon$\} \keyword{;)} stmts}
 
 \code{listStmt} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter listIfStmt \keyword{]} } \\
 \code{listIfStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)}} \\
@@ -75,7 +75,7 @@
 \code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
 \code{varDecl} \textrightarrow \code{type identifier} \\
 \code{listDecl} \textrightarrow \code{\keyword{list(}type\keyword{)} identifier} \\
-\code{vals} \textrightarrow \code{val | val, vals }
+\code{vals} \textrightarrow \code{val | val, vals } \\
 \code{val} \textrightarrow \code{lVal | rVal} \\
 \code{lVal} \textrightarrow \code{identifier | indexStmt} \\
 \code{rVal} \textrightarrow \code{identifier | callStmt | indexStmt | listStmt | expr | number | boolVal} \\
