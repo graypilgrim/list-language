@@ -250,4 +250,25 @@ TEST_CASE( "Parser: mocked stream") {
 
 		REQUIRE( exceptionCaught == false );
 	}
+
+	SECTION( "IndexStatement - correct") {
+		std::string exText("int fun() { table[i + 4]; }" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+			std::cout << e.what() << std::endl;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
 }

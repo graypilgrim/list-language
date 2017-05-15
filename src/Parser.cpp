@@ -19,6 +19,10 @@ void Parser::nextAtom() {
 	atom = lexer->getNextAtom();
 }
 
+std::string Parser::currentLine() {
+	return std::to_string(lexer->getLineNo());
+}
+
 void Parser::program() {
 	nextAtom();
 	funsDecls();
@@ -54,7 +58,7 @@ void Parser::funDecl() {
 		else
 			nextAtom();
 	} else
-		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Not expected symbol at line: " + currentLine());
 
 	if (atom == "{") {
 		funDef();
@@ -72,7 +76,7 @@ void Parser::args() {
 	} else if (atom == ")") {
 		nextAtom();
 	} else
-		throw std::domain_error("Closing paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Closing paranthesis expected at line: " + currentLine());
 }
 
 void Parser::stmts() {
@@ -119,7 +123,7 @@ void Parser::stmt() {
 				nextAtom();
 				assignStmt();
 			} else
-				throw std::domain_error("Unexpected symbol at line: " + std::to_string(lexer->getLineNo()));
+				throw std::domain_error("Unexpected symbol at line: " + currentLine());
 		}
 	}
 }
@@ -140,13 +144,13 @@ void Parser::loppStmt() {
 
 void Parser::whileStmt() {
 	if (atom != "(")
-		throw std::domain_error("Paranthesis expected at line " + lexer->getLineNo());
+		throw std::domain_error("Paranthesis expected at line " + currentLine());
 	nextAtom();
 
 	expr();
 
 	if (atom != ")")
-		throw std::domain_error("Paranthesis expected at line " + lexer->getLineNo());
+		throw std::domain_error("Paranthesis expected at line " + currentLine());
 	nextAtom();
 
 	stmts();
@@ -172,14 +176,19 @@ void Parser::callStmt() {
 			nextAtom();
 			break;
 		} else
-			throw std::domain_error("Unexpected symmbol at line " + lexer->getLineNo());
+			throw std::domain_error("Unexpected symbol at line " + currentLine());
 	}
 
 	semicolon();
 }
 
 void Parser::indexStmt() {
+	expr();
+	if (atom != "]")
+		throw std::domain_error("Unexpected symmbol at line " + currentLine());
 
+	nextAtom();
+	semicolon();
 }
 
 void Parser::varDef() {
@@ -203,7 +212,7 @@ void Parser::varDecl() {
 	} else if (atom == ";") {
 		nextAtom();
 	} else
-		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Not expected symbol at line: " + currentLine());
 }
 
 void Parser::listStmt() {
@@ -215,7 +224,7 @@ void Parser::listStmt() {
 	}
 
 	if (atom != "]")
-		throw std::domain_error("Closing bracket expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Closing bracket expected at line: " + currentLine());
 
 	nextAtom();
 	semicolon();
@@ -224,13 +233,13 @@ void Parser::listStmt() {
 void Parser::basicListIter() {
 	expr();
 	if (atom != "for")
-		throw std::domain_error("Iteration statement expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Iteration statement expected at line: " + currentLine());
 
 	nextAtom();
 	identifier();
 
 	if (atom != "in")
-		throw std::domain_error("\"in\" expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("\"in\" expected at line: " + currentLine());
 
 	nextAtom();
 	identifier();
@@ -260,12 +269,12 @@ void Parser::assignStmt() {
 
 void Parser::ifStmt() {
 	if (atom != "(")
-		throw std::domain_error("Opening paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Opening paranthesis expected at line: " + currentLine());
 
 	nextAtom();
 	expr();
 	if (atom != ")")
-		throw std::domain_error("Closing paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Closing paranthesis expected at line: " + currentLine());
 
 	nextAtom();
 }
@@ -312,6 +321,7 @@ void Parser::mulExpr() {
 		nextAtom();
 		val();
 	}
+
 }
 
 void Parser::sumOperator() {
@@ -331,7 +341,6 @@ void Parser::vals() {
 }
 
 void Parser::val() {
-
 	if (isAtomNumber() || isAtomBoolVal()) {
 		nextAtom();
 	} else {
@@ -357,17 +366,17 @@ void Parser::type() {
 	auto t = types.find(atom);
 
 	if (t == types.end())
-		throw std::domain_error("Type expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Type expected at line: " + currentLine());
 
 	if (atom == "list") {
 		nextAtom();
 		if (atom != "(")
-			throw std::domain_error("Opening paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
+			throw std::domain_error("Opening paranthesis expected at line: " + currentLine());
 
 		nextAtom();
 		type();
 		if (atom != ")")
-			throw std::domain_error("Closing paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
+			throw std::domain_error("Closing paranthesis expected at line: " + currentLine());
 	}
 
 	nextAtom();
@@ -377,7 +386,7 @@ void Parser::identifier() {
 	auto t = types.find(atom);
 	auto id = keywords.find(atom);
 	if (t != types.end() || id != keywords.end())
-		throw std::domain_error("Identifier expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Identifier expected at line: " + currentLine());
 
 	nextAtom();
 }
@@ -392,7 +401,7 @@ void Parser::floatNumber() {
 
 void Parser::semicolon() {
 	if (atom != ";")
-		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
+		throw std::domain_error("Semicolon expected at line: " + currentLine());
 
 	nextAtom();
 }

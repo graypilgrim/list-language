@@ -19,6 +19,7 @@ public:
 
 private:
 	void nextAtom();
+	std::string currentLine();
 
 	void program();
 	void funsDefs();

@@ -173,7 +173,7 @@ bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 		return false;
 	}
 
-	if (isOperator(sign) || isSemicolon(sign) || isComa(sign)) {
+	if (isOperator(sign) || isSemicolon(sign) || isComa(sign) || isBracket(sign)) {
 		state = LexerState::START;
 		input->unget();
 		return true;
