@@ -46,7 +46,7 @@ TEST_CASE( "Parser: mocked stream") {
 		}
 
 		REQUIRE( exceptionCaught == true );
-		REQUIRE( exception.what() == std::string("Not expected symbol at line: 1") );
+		REQUIRE( exception.what() == std::string("Semicolon expected at line: 1") );
 	}
 
 	SECTION( "FunctionDeclarationWithArgs - correct") {
@@ -190,6 +190,27 @@ TEST_CASE( "Parser: mocked stream") {
 
 	SECTION( "ListStatement - correct") {
 		std::string exText("int fun() { list(bool) var; [i + 3 for i in a]; }" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+			std::cout << e.what() << std::endl;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
+
+	SECTION( "ReturnStatement - correct") {
+		std::string exText("int fun() { return 2; }" );
 
 		*s << exText;
 		lexer->setStream(exampleStream);

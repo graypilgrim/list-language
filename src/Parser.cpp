@@ -58,11 +58,8 @@ void Parser::funDecl() {
 
 	if (atom == "{") {
 		funDef();
-	} else if (atom == ";") {
-		nextAtom();
-		return;
 	} else
-		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
+		semicolon();
 }
 
 void Parser::args() {
@@ -175,10 +172,7 @@ void Parser::varDef() {
 	} else
 		identifier();
 
-	if (atom != ";")
-		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
-
-	nextAtom();
+	semicolon();
 }
 
 void Parser::varDecl() {
@@ -206,10 +200,7 @@ void Parser::listStmt() {
 		throw std::domain_error("Closing bracket expected at line: " + std::to_string(lexer->getLineNo()));
 
 	nextAtom();
-	if (atom != ";")
-		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
-
-	nextAtom();
+	semicolon();
 }
 
 void Parser::basicListIter() {
@@ -232,7 +223,8 @@ void Parser::listIfStmt() {
 }
 
 void Parser::retStmt() {
-
+	expr();
+	semicolon();
 }
 
 void Parser::assignStmt() {
@@ -245,10 +237,7 @@ void Parser::assignStmt() {
 	} else
 		expr();
 
-	if (atom != ";")
-		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
-	else
-		nextAtom();
+	semicolon();
 }
 
 void Parser::ifStmt() {
@@ -381,6 +370,13 @@ void Parser::intNumber() {
 
 void Parser::floatNumber() {
 
+}
+
+void Parser::semicolon() {
+	if (atom != ";")
+		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
+
+	nextAtom();
 }
 
 bool Parser::isAtomNumber() {

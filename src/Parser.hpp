@@ -60,6 +60,8 @@ private:
 	void intNumber();
 	void floatNumber();
 
+	void semicolon();
+
 	inline bool isAtomNumber();
 	inline bool isAtomBoolVal();
 	inline bool isAtomCompOperator();
