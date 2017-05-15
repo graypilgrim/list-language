@@ -147,4 +147,44 @@ TEST_CASE( "Parser: mocked stream") {
 
 		REQUIRE( exceptionCaught == false );
 	}
+
+	SECTION( "IfStatementWithBrackets - correct") {
+		std::string exText("int fun() { if (a == b) {a = b;} }" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
+
+	SECTION( "whileStatement- correct") {
+		std::string exText("int fun() { while(true) a = a + 1;}" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
 }

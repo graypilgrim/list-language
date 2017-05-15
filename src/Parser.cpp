@@ -66,7 +66,7 @@ void Parser::funDecl() {
 }
 
 void Parser::args() {
-	// std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << atom << std::endl;
+	//
 	type();
 	identifier();
 
@@ -80,20 +80,17 @@ void Parser::args() {
 }
 
 void Parser::stmts() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
+	// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom == "{"){
 		nextAtom();
 		while (atom != "}")
 			stmt();
 		nextAtom();
-		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << " here: " << atom << std::endl;
 	} else
 		stmt();
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 }
 
 void Parser::stmt() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom == "if") {
 		nextAtom();
 		condStmt();
@@ -132,13 +129,11 @@ void Parser::stmt() {
 }
 
 void Parser::condStmt() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	ifStmt();
 
 	if (atom == "else")
 		elseStmt();
 	else {
-		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 		stmts();
 	}
 }
@@ -148,21 +143,17 @@ void Parser::loppStmt() {
 }
 
 void Parser::whileStmt() {
-	// nextAtom();
-	// if (atom != "(")
-	// 	throw std::domain_error("Paranthesis expected at line " + lexer->getCurrentLine());
-	//
-	// expr();
-	//
-	// atom = lexer->getNextAtom();
-	// if (atom != ")")
-	// 	throw std::domain_error("Paranthesis expected at line " + lexer->getCurrentLine());
-	//
-	// atom = lexer->getNextAtom();
-	// if (atom == "{")
-	// 	stmts();
-	// else
-	// 	stmt();
+	if (atom != "(")
+		throw std::domain_error("Paranthesis expected at line " + lexer->getLineNo());
+	nextAtom();
+
+	expr();
+
+	if (atom != ")")
+		throw std::domain_error("Paranthesis expected at line " + lexer->getLineNo());
+	nextAtom();
+
+	stmts();
 }
 
 void Parser::forStmt() {
@@ -190,18 +181,14 @@ void Parser::varDef() {
 }
 
 void Parser::varDecl() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	type();
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	identifier();
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
 	if (atom == "=") {
 		nextAtom();
 		varDef();
 	} else if (atom == ";") {
 		nextAtom();
-		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 		return;
 	} else
 		throw std::domain_error("Not expected symbol at line: " + std::to_string(lexer->getLineNo()));
@@ -224,8 +211,6 @@ void Parser::retStmt() {
 }
 
 void Parser::assignStmt() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
-
 	if (atom == "["){
 		nextAtom();
 		listStmt();
@@ -233,7 +218,7 @@ void Parser::assignStmt() {
 		nextAtom();
 		callStmt();
 	} else
-		val();
+		expr();
 
 	if (atom != ";")
 		throw std::domain_error("Semicolon expected at line: " + std::to_string(lexer->getLineNo()));
@@ -242,14 +227,11 @@ void Parser::assignStmt() {
 }
 
 void Parser::ifStmt() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom != "(")
 		throw std::domain_error("Opening paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
 
 	nextAtom();
 	expr();
-
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	if (atom != ")")
 		throw std::domain_error("Closing paranthesis expected at line: " + std::to_string(lexer->getLineNo()));
 
@@ -261,7 +243,6 @@ void Parser::elseStmt() {
 }
 
 void Parser::expr() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
 	andExpr();
 	if (atom == "||") {
@@ -319,13 +300,11 @@ void Parser::vals() {
 }
 
 void Parser::val() {
-	std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 
 	if (isAtomNumber() || isAtomBoolVal()) {
 		nextAtom();
 	} else {
 		identifier();
-		std::cout << ">>>>>>>>>>>>>>>>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 		if (atom == "(") {
 			nextAtom();
 			callStmt();
