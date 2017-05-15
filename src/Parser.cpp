@@ -58,7 +58,7 @@ void Parser::funDecl() {
 		else
 			nextAtom();
 	} else
-		throw std::domain_error("Not expected symbol at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
 
 	if (atom == "{") {
 		funDef();
@@ -76,7 +76,7 @@ void Parser::args() {
 	} else if (atom == ")") {
 		nextAtom();
 	} else
-		throw std::domain_error("Closing paranthesis expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
 }
 
 void Parser::stmts() {
@@ -107,8 +107,7 @@ void Parser::stmt() {
 		nextAtom();
 		retStmt();
 	} else {
-		auto it = types.find(atom);
-		if (it != types.end())
+		if (isAtomType())
 			varDecl();
 		else {
 			identifier();
@@ -123,7 +122,7 @@ void Parser::stmt() {
 				nextAtom();
 				assignStmt();
 			} else
-				throw std::domain_error("Unexpected symbol at line: " + currentLine());
+				throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 		}
 	}
 }
@@ -145,20 +144,48 @@ void Parser::loppStmt() {
 
 void Parser::whileStmt() {
 	if (atom != "(")
-		throw std::domain_error("Paranthesis expected at line " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
 	nextAtom();
 
 	expr();
 
 	if (atom != ")")
-		throw std::domain_error("Paranthesis expected at line " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
 	nextAtom();
 
 	stmts();
 }
 
 void Parser::forStmt() {
+	if (atom != "(")
+		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
+	nextAtom();
 
+	if (atom == ";") {
+		nextAtom();
+	} else {
+		if (isAtomType()) {
+			varDecl();
+		} else {
+			identifier();
+			if (atom == "=")
+				assignStmt();
+		}
+	}
+
+	if (atom == ";") {
+		nextAtom();
+	} else {
+		expr();
+	}
+
+	semicolon();
+	stmt();
+	if (atom != ")")
+		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line " + currentLine());
+
+	nextAtom();
+	stmts();
 }
 
 void Parser::callStmt() {
@@ -177,7 +204,7 @@ void Parser::callStmt() {
 			nextAtom();
 			break;
 		} else
-			throw std::domain_error("Unexpected symbol at line " + currentLine());
+			throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 	}
 
 	semicolon();
@@ -186,7 +213,7 @@ void Parser::callStmt() {
 void Parser::indexStmt() {
 	expr();
 	if (atom != "]")
-		throw std::domain_error("Unexpected symmbol at line " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 
 	nextAtom();
 	semicolon();
@@ -213,7 +240,7 @@ void Parser::varDecl() {
 	} else if (atom == ";") {
 		nextAtom();
 	} else
-		throw std::domain_error("Not expected symbol at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
 }
 
 void Parser::listStmt() {
@@ -225,7 +252,7 @@ void Parser::listStmt() {
 	}
 
 	if (atom != "]")
-		throw std::domain_error("Closing bracket expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Closing bracket expected at line: " + currentLine());
 
 	nextAtom();
 	semicolon();
@@ -234,13 +261,13 @@ void Parser::listStmt() {
 void Parser::basicListIter() {
 	expr();
 	if (atom != "for")
-		throw std::domain_error("Iteration statement expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Iteration statement expected at line: " + currentLine());
 
 	nextAtom();
 	identifier();
 
 	if (atom != "in")
-		throw std::domain_error("\"in\" expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " \"in\" expected at line: " + currentLine());
 
 	nextAtom();
 	identifier();
@@ -264,18 +291,17 @@ void Parser::assignStmt() {
 		callStmt();
 	} else
 		expr();
-
 	semicolon();
 }
 
 void Parser::ifStmt() {
 	if (atom != "(")
-		throw std::domain_error("Opening paranthesis expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Opening paranthesis expected at line: " + currentLine());
 
 	nextAtom();
 	expr();
 	if (atom != ")")
-		throw std::domain_error("Closing paranthesis expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
 
 	nextAtom();
 }
@@ -370,17 +396,17 @@ void Parser::type() {
 	auto t = types.find(atom);
 
 	if (t == types.end())
-		throw std::domain_error("Type expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Type expected at line: " + currentLine());
 
 	if (atom == "list") {
 		nextAtom();
 		if (atom != "(")
-			throw std::domain_error("Opening paranthesis expected at line: " + currentLine());
+			throw std::domain_error(std::string(__FUNCTION__) + " Opening paranthesis expected at line: " + currentLine());
 
 		nextAtom();
 		type();
 		if (atom != ")")
-			throw std::domain_error("Closing paranthesis expected at line: " + currentLine());
+			throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
 	}
 
 	nextAtom();
@@ -390,7 +416,7 @@ void Parser::identifier() {
 	auto t = types.find(atom);
 	auto id = keywords.find(atom);
 	if (t != types.end() || id != keywords.end())
-		throw std::domain_error("Identifier expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Identifier expected at line: " + currentLine());
 
 	nextAtom();
 }
@@ -405,7 +431,7 @@ void Parser::floatNumber() {
 
 void Parser::semicolon() {
 	if (atom != ";")
-		throw std::domain_error("Semicolon expected at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Semicolon expected at line: " + currentLine());
 
 	nextAtom();
 }
@@ -428,4 +454,9 @@ bool Parser::isAtomSumOperator() {
 
 bool Parser::isAtomMulOperator() {
 	return atom == "*" || atom == "/";
+}
+
+bool Parser::isAtomType() {
+	auto it = types.find(atom);
+	return it != types.end();
 }

@@ -33,7 +33,6 @@ TEST_CASE( "Parser: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		bool exceptionCaught = false;
-		std::domain_error exception("");
 
 		try
 		{
@@ -41,12 +40,10 @@ TEST_CASE( "Parser: mocked stream") {
 		}
 		catch (std::domain_error &e)
 		{
-			exception = std::move(e);
 			exceptionCaught = true;
 		}
 
 		REQUIRE( exceptionCaught == true );
-		REQUIRE( exception.what() == std::string("Semicolon expected at line: 1") );
 	}
 
 	SECTION( "FunctionDeclarationWithArgs - correct") {
@@ -273,6 +270,27 @@ TEST_CASE( "Parser: mocked stream") {
 
 	SECTION( "IndexStatement - correct") {
 		std::string exText("int fun() { table[i + 4]; }" );
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		bool exceptionCaught = false;
+
+		try
+		{
+			parser->run();
+		}
+		catch (std::domain_error &e)
+		{
+			exceptionCaught = true;
+			std::cout << e.what() << std::endl;
+		}
+
+		REQUIRE( exceptionCaught == false );
+	}
+
+	SECTION( "ForLoop - correct") {
+		std::string exText("int fun() { for(int a = 0; b < 5; c = d + 2;) e = 3;}" );
 
 		*s << exText;
 		lexer->setStream(exampleStream);

@@ -68,6 +68,7 @@ private:
 	inline bool isAtomCompOperator();
 	inline bool isAtomSumOperator();
 	inline bool isAtomMulOperator();
+	inline bool isAtomType();
 
 	std::string atom;
 
