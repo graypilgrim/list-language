@@ -11,6 +11,8 @@ SOURCES = \
 	./src/Parser.cpp \
 	./src/DerivationNode.cpp \
 	./src/DerivationTree.cpp \
+	./src/SymbolTableEntry.cpp \
+	./src/SymbolTable.cpp \
 
 PROD_SOURCES = \
 	$(SOURCES) \

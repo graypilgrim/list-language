@@ -27,3 +27,17 @@ void DerivationNode::addChild(const std::shared_ptr<DerivationNode> &child)
 {
 	children.push_back(child);
 }
+
+void DerivationNode::createScope()
+{
+	localScope = std::make_shared<SymbolTable>();
+}
+
+std::shared_ptr<SymbolTable> DerivationNode::getSymbolTable()
+{
+	if (localScope)
+		return localScope;
+
+	auto p = parent.lock();
+	return p->getSymbolTable();
+}

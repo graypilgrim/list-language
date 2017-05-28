@@ -1,9 +1,13 @@
 #ifndef DERIVATION_NODE_HPP
 #define DERIVATION_NODE_HPP
 
+#include "SymbolTable.hpp"
+
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
+class SymbolTable;
 class DerivationNode
 {
 public:
@@ -16,11 +20,18 @@ public:
 
 	void addChild(const std::shared_ptr<DerivationNode> &child);
 
+	void createScope();
+	std::shared_ptr<SymbolTable> getSymbolTable();
+
 private:
+	static size_t index;
+
 	std::string label;
 
 	std::weak_ptr<DerivationNode> parent;
 	std::vector<std::shared_ptr<DerivationNode>> children;
+
+	std::shared_ptr<SymbolTable> localScope;
 };
 
 #endif

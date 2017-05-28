@@ -2,6 +2,9 @@
 #define DERIVATION_TREE_HPP
 
 #include "DerivationNode.hpp"
+#include "SymbolTable.hpp"
+
+#include <unordered_map>
 
 class DerivationTree
 {
