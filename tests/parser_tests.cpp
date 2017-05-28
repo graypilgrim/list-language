@@ -13,18 +13,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "FunctionDeclaration - incorrect") {
@@ -34,12 +23,9 @@ TEST_CASE( "Parser: mocked stream") {
 
 		bool exceptionCaught = false;
 
-		try
-		{
+		try {
 			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
+		} catch (std::domain_error &e) {
 			exceptionCaught = true;
 		}
 
@@ -51,18 +37,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "ListDeclaration - correct") {
@@ -71,18 +46,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "TwoVariablesDeclarations - incorrect") {
@@ -93,12 +57,9 @@ TEST_CASE( "Parser: mocked stream") {
 
 		bool exceptionCaught = false;
 
-		try
-		{
+		try {
 			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
+		} catch (std::domain_error &e) {
 			exceptionCaught = true;
 		}
 
@@ -111,18 +72,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "IfStatement - correct") {
@@ -131,18 +81,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "IfElseStatement - correct") {
@@ -151,18 +90,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "IfStatementWithBrackets - correct") {
@@ -171,18 +99,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "whileStatement- correct") {
@@ -191,18 +108,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "ListStatement - correct") {
@@ -211,19 +117,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-			std::cout << e.what() << std::endl;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "ReturnStatement - correct") {
@@ -232,19 +126,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
+		parser->run();
 
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-			std::cout << e.what() << std::endl;
-		}
-
-		REQUIRE( exceptionCaught == false );
 	}
 
 	SECTION( "CallStatement - correct") {
@@ -253,19 +136,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-			std::cout << e.what() << std::endl;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "IndexStatement - correct") {
@@ -274,19 +145,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-			std::cout << e.what() << std::endl;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 
 	SECTION( "ForLoop - correct") {
@@ -295,18 +154,6 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		bool exceptionCaught = false;
-
-		try
-		{
-			parser->run();
-		}
-		catch (std::domain_error &e)
-		{
-			exceptionCaught = true;
-			std::cout << e.what() << std::endl;
-		}
-
-		REQUIRE( exceptionCaught == false );
+		parser->run();
 	}
 }

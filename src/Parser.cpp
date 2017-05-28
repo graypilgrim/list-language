@@ -11,429 +11,497 @@ Parser::Parser(const std::shared_ptr<Lexer> &lexer)
 	  types({"list", "int", "float", "bool", "void"})
 {}
 
-void Parser::run() {
-	program();
+std::shared_ptr<DerivationTree> Parser::run() {
+	auto root = std::make_shared<DerivationNode>("program");
+	tree = std::make_shared<DerivationTree>(root);
+	nextAtom(root);
+	root->addChild(funsDecls(root));
+
+	return tree;
 }
 
-void Parser::nextAtom() {
+std::shared_ptr<DerivationNode> Parser::nextAtom(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>(atom, parent);
 	atom = lexer->getNextAtom();
+	return node;
 }
 
 std::string Parser::currentLine() {
 	return std::to_string(lexer->getLineNo());
 }
 
-void Parser::program() {
-	nextAtom();
-	funsDecls();
+std::shared_ptr<DerivationNode> Parser::funDef(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("funDef", parent);
+	node->addChild(stmts(node));
+
+	return node;
 }
 
-void Parser::funsDefs() {
-
-}
-
-void Parser::funDef() {
-	stmts();
-}
-
-void Parser::funsDecls() {
+std::shared_ptr<DerivationNode> Parser::funsDecls(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("funDecls", parent);
 	while (atom != "")
-		funDecl();
+		node->addChild(funDecl(parent));
+
+	return node;
 }
 
-void Parser::funDecl() {
-	type();
-	identifier();
+std::shared_ptr<DerivationNode> Parser::funDecl(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("funDecl", parent);
+	node->addChild(type(node));
+	node->addChild(identifier(node));
 
 	if (atom == ";") {
-		nextAtom();
-		funsDecls();
+		node->addChild(nextAtom(node));
+		return node;
 	} else if (atom == "=") {
-		nextAtom();
-		varDef();
+		node->addChild(nextAtom(node));
 	} else if (atom == "(") {
-		nextAtom();
+		node->addChild(nextAtom(node));
 		if (atom != ")")
-			args();
+			node->addChild(args(node));
 		else
-			nextAtom();
+			node->addChild(nextAtom(node));
 	} else
 		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
 
 	if (atom == "{") {
-		funDef();
+		node->addChild(funDef(node));
 	} else
-		semicolon();
+		node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::args() {
-	type();
-	identifier();
+std::shared_ptr<DerivationNode> Parser::args(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("args", parent);
+	node->addChild(type(node));
+	node->addChild(identifier(node));
 
 	if (atom == ",") {
-		nextAtom();
-		args();
+		node->addChild(nextAtom(node));
+		node->addChild(args(node));
 	} else if (atom == ")") {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else
 		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
+
+	return node;
 }
 
-void Parser::stmts() {
+std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode> &parent) {
 	// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
+	auto node = std::make_shared<DerivationNode>("stmts", parent);
 	if (atom == "{"){
-		nextAtom();
+		node->addChild(nextAtom(node));
 		while (atom != "}")
-			stmt();
-		nextAtom();
+			node->addChild(stmt(node));
+		node->addChild(nextAtom(node));
 	} else
-		stmt();
+		node->addChild(stmt(node));
+
+	return node;
 }
 
-void Parser::stmt() {
+std::shared_ptr<DerivationNode> Parser::stmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("stmts", parent);
+
 	if (atom == "if") {
-		nextAtom();
-		condStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(condStmt(node));
 	} else if (atom == "for") {
-		nextAtom();
-		forStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(forStmt(node));
 	} else if (atom == "while") {
-		nextAtom();
-		whileStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(whileStmt(node));
 	} else if (atom == "[") {
-		nextAtom();
-		listStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(listStmt(node));
 	} else if (atom == "return") {
-		nextAtom();
-		retStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(retStmt(node));
 	} else {
 		if (isAtomType())
-			varDecl();
+			node->addChild(varDecl(node));
 		else {
-			identifier();
+			node->addChild(identifier(node));
 
 			if (atom == "[") {
-				nextAtom();
-				indexStmt();
+				node->addChild(nextAtom(node));
+				node->addChild(indexStmt(node));
 			} else if (atom == "(") {
-				nextAtom();
-				callStmt();
+				node->addChild(nextAtom(node));
+				node->addChild(callStmt(node));
 			} else if (atom == "=") {
-				nextAtom();
-				assignStmt();
+				node->addChild(nextAtom(node));
+				node->addChild(assignStmt(node));
 			} else
 				throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 		}
 	}
+
+	return node;
 }
 
-void Parser::condStmt() {
-	ifStmt();
-	stmts();
+std::shared_ptr<DerivationNode> Parser::condStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("condStmt", parent);
+
+	node->addChild(ifStmt(node));
+	node->addChild(stmts(node));
 
 	if (atom == "else") {
-		nextAtom();
-		elseStmt();
-		stmts();
+		node->addChild(nextAtom(node));
+		node->addChild(elseStmt(node));
+		node->addChild(stmts(node));
 	}
+
+	return node;
 }
 
-void Parser::loppStmt() {
+std::shared_ptr<DerivationNode> Parser::whileStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("whileStmt", parent);
 
-}
-
-void Parser::whileStmt() {
 	if (atom != "(")
 		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
-	nextAtom();
+	node->addChild(nextAtom(node));
 
-	expr();
+	node->addChild(expr(node));
 
 	if (atom != ")")
 		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
-	nextAtom();
+	node->addChild(nextAtom(node));
 
-	stmts();
+	node->addChild(stmts(node));
+
+	return node;
 }
 
-void Parser::forStmt() {
+std::shared_ptr<DerivationNode> Parser::forStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("forStmt", parent);
+
 	if (atom != "(")
 		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
-	nextAtom();
+	node->addChild(nextAtom(node));
 
 	if (atom == ";") {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else {
 		if (isAtomType()) {
-			varDecl();
+			node->addChild(varDecl(node));
 		} else {
-			identifier();
+			node->addChild(identifier(node));
 			if (atom == "=")
-				assignStmt();
+				node->addChild(assignStmt(node));
 		}
 	}
 
 	if (atom == ";") {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else {
-		expr();
+		node->addChild(expr(node));
 	}
 
-	semicolon();
-	stmt();
+	node->addChild(semicolon(node));
+	node->addChild(stmt(node));
 	if (atom != ")")
 		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line " + currentLine());
 
-	nextAtom();
-	stmts();
+	node->addChild(nextAtom(node));
+	node->addChild(stmts(node));
+
+	return node;
 }
 
-void Parser::callStmt() {
+std::shared_ptr<DerivationNode> Parser::callStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("callStmt", parent);
 
 	if (atom == ")") {
-		nextAtom();
-		return;
+		node->addChild(nextAtom(node));
+		return node;
 	}
 
 	while (atom != ""){
-		expr();
+		node->addChild(expr(node));
 
 		if (atom == ",") {
-			nextAtom();
+			node->addChild(nextAtom(node));
 		} else if (atom == ")") {
-			nextAtom();
+			node->addChild(nextAtom(node));
 			break;
 		} else
 			throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 	}
 
-	semicolon();
+	node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::indexStmt() {
-	expr();
+std::shared_ptr<DerivationNode> Parser::indexStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("indexStmt", parent);
+
+	node->addChild(expr(node));
 	if (atom != "]")
 		throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 
-	nextAtom();
-	semicolon();
+	node->addChild(nextAtom(node));
+	node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::varDef() {
+std::shared_ptr<DerivationNode> Parser::varDef(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("varDef", parent);
+
 	if (isAtomNumber()) {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else if (isAtomBoolVal()) {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else
-		identifier();
+		node->addChild(identifier(node));
 
-	semicolon();
+	node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::varDecl() {
-	type();
-	identifier();
+std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("varDecl", parent);
+
+	node->addChild(type(node));
+	node->addChild(identifier(node));
 
 	if (atom == "=") {
-		nextAtom();
-		varDef();
+		node->addChild(nextAtom(node));
+		node->addChild(varDef(node));
 	} else if (atom == ";") {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else
 		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
+
+	return node;
 }
 
-void Parser::listStmt() {
-	basicListIter();
+std::shared_ptr<DerivationNode> Parser::listStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("listStmt", parent);
+
+	node->addChild(basicListIter(node));
 
 	if (atom == "if") {
-		nextAtom();
-		listIfStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(listIfStmt(node));
 	}
 
 	if (atom != "]")
 		throw std::domain_error(std::string(__FUNCTION__) + " Closing bracket expected at line: " + currentLine());
 
-	nextAtom();
-	semicolon();
+	node->addChild(nextAtom(node));
+	node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::basicListIter() {
-	expr();
+std::shared_ptr<DerivationNode> Parser::basicListIter(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("basicListIter", parent);
+
+	node->addChild(expr(node));
 	if (atom != "for")
 		throw std::domain_error(std::string(__FUNCTION__) + " Iteration statement expected at line: " + currentLine());
 
-	nextAtom();
-	identifier();
+	node->addChild(nextAtom(node));
+	node->addChild(identifier(node));
 
 	if (atom != "in")
 		throw std::domain_error(std::string(__FUNCTION__) + " \"in\" expected at line: " + currentLine());
 
-	nextAtom();
-	identifier();
+	node->addChild(nextAtom(node));
+	node->addChild(identifier(node));
+
+	return node;
 }
 
-void Parser::listIfStmt() {
-	ifStmt();
+std::shared_ptr<DerivationNode> Parser::listIfStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("funDecl", parent);
+	node->addChild(ifStmt(node));
+
+	return node;
 }
 
-void Parser::retStmt() {
-	expr();
-	semicolon();
+std::shared_ptr<DerivationNode> Parser::retStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("funDecl", parent);
+	node->addChild(expr(node));
+	node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::assignStmt() {
+std::shared_ptr<DerivationNode> Parser::assignStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("assignStmt", parent);
+
 	if (atom == "["){
-		nextAtom();
-		listStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(listStmt(node));
 	} else if (atom == "(") {
-		nextAtom();
-		callStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(callStmt(node));
 	} else
-		expr();
-	semicolon();
+		node->addChild(expr(node));
+	node->addChild(semicolon(node));
+
+	return node;
 }
 
-void Parser::ifStmt() {
+std::shared_ptr<DerivationNode> Parser::ifStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("ifStmt", parent);
+
 	if (atom != "(")
 		throw std::domain_error(std::string(__FUNCTION__) + " Opening paranthesis expected at line: " + currentLine());
 
-	nextAtom();
-	expr();
+	node->addChild(nextAtom(node));
+	node->addChild(expr(node));
 	if (atom != ")")
 		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
 
-	nextAtom();
+	node->addChild(nextAtom(node));
+
+	return node;
 }
 
-void Parser::elseStmt() {
+std::shared_ptr<DerivationNode> Parser::elseStmt(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("elseStmt", parent);
+
 	if (atom == "if") {
-		nextAtom();
-		condStmt();
+		node->addChild(nextAtom(node));
+		node->addChild(condStmt(node));
 	}
+
+	return node;
 }
 
-void Parser::expr() {
-	andExpr();
+std::shared_ptr<DerivationNode> Parser::expr(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("expr", parent);
+
+	node->addChild(andExpr(node));
 	if (atom == "||") {
-		nextAtom();
-		andExpr();
+		node->addChild(nextAtom(node));
+		node->addChild(andExpr(node));
 	}
+
+	return node;
 }
 
-void Parser::andExpr() {
-	compExpr();
+std::shared_ptr<DerivationNode> Parser::andExpr(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("andExpr", parent);
+
+	node->addChild(compExpr(node));
 	if (atom == "&&") {
-		nextAtom();
-		compExpr();
+		node->addChild(nextAtom(node));
+		node->addChild(compExpr(node));
 	}
+
+	return node;
 }
 
-void Parser::compExpr() {
-	sumExpr();
+std::shared_ptr<DerivationNode> Parser::compExpr(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("comExpr", parent);
+
+	node->addChild(sumExpr(node));
 	if (isAtomCompOperator()) {
-		nextAtom();
-		sumExpr();
+		node->addChild(nextAtom(node));
+		node->addChild(sumExpr(node));
 	}
+
+	return node;
 }
 
-void Parser::sumExpr() {
-	mulExpr();
+std::shared_ptr<DerivationNode> Parser::sumExpr(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("sumExpr", parent);
+
+	node->addChild(mulExpr(node));
 	if (isAtomSumOperator()) {
-		nextAtom();
-		mulExpr();
+		node->addChild(nextAtom(node));
+		node->addChild(mulExpr(node));
 	}
+
+	return node;
 }
 
-void Parser::mulExpr() {
-	val();
+std::shared_ptr<DerivationNode> Parser::mulExpr(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("mulExpr", parent);
+
+	node->addChild(val(node));
 	if (isAtomMulOperator()) {
-		nextAtom();
-		val();
+		node->addChild(nextAtom(node));
+		node->addChild(val(node));
 	}
 
+	return node;
 }
 
-void Parser::sumOperator() {
+std::shared_ptr<DerivationNode> Parser::val(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("val", parent);
 
-}
-
-void Parser::mulOperator() {
-
-}
-
-void Parser::compOperator() {
-
-}
-
-void Parser::vals() {
-
-}
-
-void Parser::val() {
 	if (isAtomNumber() || isAtomBoolVal()) {
-		nextAtom();
+		node->addChild(nextAtom(node));
 	} else {
-		identifier();
+		node->addChild(identifier(node));
 		if (atom == "(") {
-			nextAtom();
-			callStmt();
+			node->addChild(nextAtom(node));
+			node->addChild(callStmt(node));
 		} else if (atom == "[") {
-			nextAtom();
-			indexStmt();
+			node->addChild(nextAtom(node));
+			node->addChild(indexStmt(node));
 		}
 	}
+
+	return node;
 }
 
-void Parser::lVal() {
+std::shared_ptr<DerivationNode> Parser::type(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("type", parent);
 
-}
-
-void Parser::rVal() {
-}
-
-void Parser::type() {
 	auto t = types.find(atom);
 
 	if (t == types.end())
 		throw std::domain_error(std::string(__FUNCTION__) + " Type expected at line: " + currentLine());
 
 	if (atom == "list") {
-		nextAtom();
+		node->addChild(nextAtom(node));
 		if (atom != "(")
 			throw std::domain_error(std::string(__FUNCTION__) + " Opening paranthesis expected at line: " + currentLine());
 
-		nextAtom();
-		type();
+		node->addChild(nextAtom(node));
+		node->addChild(type(node));
 		if (atom != ")")
 			throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
 	}
 
-	nextAtom();
+	node->addChild(nextAtom(node));
+	return node;
 }
 
-void Parser::identifier() {
+std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("identifier", parent);
+
 	auto t = types.find(atom);
 	auto id = keywords.find(atom);
 	if (t != types.end() || id != keywords.end())
 		throw std::domain_error(std::string(__FUNCTION__) + " Identifier expected at line: " + currentLine());
 
-	nextAtom();
+	node->addChild(nextAtom(node));
+
+	return node;
 }
 
-void Parser::intNumber() {
+std::shared_ptr<DerivationNode> Parser::semicolon(const std::weak_ptr<DerivationNode> &parent) {
+	auto node = std::make_shared<DerivationNode>("semicolon", parent);
 
-}
-
-void Parser::floatNumber() {
-
-}
-
-void Parser::semicolon() {
 	if (atom != ";")
 		throw std::domain_error(std::string(__FUNCTION__) + " Semicolon expected at line: " + currentLine());
 
-	nextAtom();
+	node->addChild(nextAtom(node));
+
+	return node;
 }
 
 bool Parser::isAtomNumber() {

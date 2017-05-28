@@ -9,6 +9,8 @@ SOURCES = \
 	./src/Lexer.cpp \
 	./src/GlobalItem.cpp \
 	./src/Parser.cpp \
+	./src/DerivationNode.cpp \
+	./src/DerivationTree.cpp \
 
 PROD_SOURCES = \
 	$(SOURCES) \
