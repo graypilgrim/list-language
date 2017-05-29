@@ -17,6 +17,7 @@ public:
 	std::string getLabel() const;
 	std::shared_ptr<DerivationNode> getParent() const;
 	std::vector<std::shared_ptr<DerivationNode>> getChildren() const;
+	size_t getDepth() const;
 
 	void addChild(const std::shared_ptr<DerivationNode> &child);
 
@@ -27,6 +28,7 @@ private:
 	static size_t index;
 
 	std::string label;
+	size_t depth;
 
 	std::weak_ptr<DerivationNode> parent;
 	std::vector<std::shared_ptr<DerivationNode>> children;

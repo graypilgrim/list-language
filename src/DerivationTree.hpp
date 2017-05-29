@@ -12,6 +12,7 @@ public:
 	DerivationTree() = default;
 	DerivationTree(const std::shared_ptr<DerivationNode> &root);
 	void execute();
+	void print();
 
 private:
 	std::shared_ptr<DerivationNode> root;

@@ -13,7 +13,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "FunctionDeclaration - incorrect") {
@@ -37,7 +38,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "ListDeclaration - correct") {
@@ -46,7 +48,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "TwoVariablesDeclarations - incorrect") {
@@ -72,7 +75,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "IfStatement - correct") {
@@ -81,7 +85,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "IfElseStatement - correct") {
@@ -90,7 +95,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "IfStatementWithBrackets - correct") {
@@ -99,7 +105,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "whileStatement- correct") {
@@ -108,7 +115,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "ListStatement - correct") {
@@ -117,7 +125,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "ReturnStatement - correct") {
@@ -126,8 +135,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
-
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "CallStatement - correct") {
@@ -136,7 +145,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "IndexStatement - correct") {
@@ -145,7 +155,8 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 
 	SECTION( "ForLoop - correct") {
@@ -154,6 +165,7 @@ TEST_CASE( "Parser: mocked stream") {
 		*s << exText;
 		lexer->setStream(exampleStream);
 
-		parser->run();
+		auto tree = parser->run();
+		tree->print();
 	}
 }

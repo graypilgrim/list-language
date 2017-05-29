@@ -13,6 +13,7 @@ Parser::Parser(const std::shared_ptr<Lexer> &lexer)
 
 std::shared_ptr<DerivationTree> Parser::run() {
 	auto root = std::make_shared<DerivationNode>("program");
+	root->createScope();
 	tree = std::make_shared<DerivationTree>(root);
 	nextAtom(root);
 	root->addChild(funsDecls(root));
@@ -40,7 +41,7 @@ std::shared_ptr<DerivationNode> Parser::funDef(const std::weak_ptr<DerivationNod
 std::shared_ptr<DerivationNode> Parser::funsDecls(const std::weak_ptr<DerivationNode> &parent) {
 	auto node = std::make_shared<DerivationNode>("funDecls", parent);
 	while (atom != "")
-		node->addChild(funDecl(parent));
+		node->addChild(funDecl(node));
 
 	return node;
 }
@@ -93,9 +94,13 @@ std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode
 	auto node = std::make_shared<DerivationNode>("stmts", parent);
 	if (atom == "{"){
 		node->addChild(nextAtom(node));
+		node->createScope();
+
 		while (atom != "}")
 			node->addChild(stmt(node));
+
 		node->addChild(nextAtom(node));
+
 	} else
 		node->addChild(stmt(node));
 
