@@ -38,6 +38,7 @@ TEST_CASE( "Parser: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
+		tree->printTree();
 		tree->printSymbolTables();
 	}
 
@@ -74,8 +75,8 @@ TEST_CASE( "Parser: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
-		tree->printTree();
-		tree->printSymbolTables();
+		// tree->printTree();
+		// tree->printSymbolTables();
 	}
 
 	SECTION( "IfStatement - correct") {
@@ -148,7 +149,7 @@ TEST_CASE( "Parser: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
-		tree->printTree();
+		// tree->printTree();
 	}
 
 	SECTION( "ForLoop - correct") {

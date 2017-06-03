@@ -57,7 +57,9 @@ void DerivationTree::printSymbolTables()
 	for (auto &i : symbolTables) {
 		std::cout << "Table: " << std::endl;
 		for (auto &tuple : i->getScope())
-			std::cout << "\t"<< tuple.first << " " << SymbolTableEntry::typeToString(tuple.second.first->getType()) << std::endl;
+			std::cout << "\t"<< tuple.first
+				<< " " << SymbolTableEntry::typeToString(tuple.second.first->getType())
+				<< " " << tuple.second.first->getFuncArgsNo() << std::endl;
 		std::cout << std::endl;
 	}
 }
@@ -82,7 +84,19 @@ void DerivationTree::setType(const std::shared_ptr<DerivationNode> &node, const 
 
 void DerivationTree::setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
 {
+	size_t counter = 0;
 
+	auto argNode = node->getParent()->getParent();
+
+	for (size_t i = 0; i < argNode->getChildren().size(); ++i) {
+		if (argNode->getChildren()[i]->getLabel() == "args") {
+			argNode = argNode->getChildren()[i];
+			i = 0;
+			++counter;
+		}
+	}
+
+	entry->setFuncArgsNo(counter);
 }
 
 void DerivationTree::setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
