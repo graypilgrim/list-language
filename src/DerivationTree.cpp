@@ -56,8 +56,8 @@ void DerivationTree::printSymbolTables()
 {
 	for (auto &i : symbolTables) {
 		std::cout << "Table: " << std::endl;
-		for (auto &entry : i->getScope())
-			std::cout << entry.first << " ";
+		for (auto &tuple : i->getScope())
+			std::cout << "\t"<< tuple.first << " " << SymbolTableEntry::typeToString(tuple.second.first->getType()) << std::endl;
 		std::cout << std::endl;
 	}
 }
@@ -74,7 +74,7 @@ void DerivationTree::setType(const std::shared_ptr<DerivationNode> &node, const 
 	auto typeNode = grandParent->getChildren()[0]->getChildren()[0];
 	if (typeNode->getLabel() == "list") {
 		list = true;
-		typeNode = typeNode->getChildren()[2]->getChildren()[0];
+		typeNode = typeNode->getParent()->getChildren()[2]->getChildren()[0];
 	}
 
 	entry->setType(deduceType(list, function, typeNode->getLabel()));
@@ -122,5 +122,5 @@ Type DerivationTree::deduceType(bool isList, bool isFunction, const std::string 
 	if (type == "bool")
 		return Type::BOOL;
 
-	return Type::INT;
+	return Type::FLOAT;
 }

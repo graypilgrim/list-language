@@ -44,3 +44,40 @@ size_t SymbolTableEntry::getFuncArgsNo()
 {
 	return funcArgsNo;
 }
+
+std::string SymbolTableEntry::typeToString(Type type)
+{
+	switch (type) {
+	case Type::INT:
+		return "INT";
+
+	case Type::FLOAT:
+		return "FLOAT";
+
+	case Type::BOOL:
+		return "BOOL";
+
+	case Type::INT_LIST:
+		return "INT_LIST";
+
+	case Type::FLOAT_LIST:
+		return "FLOAT_LIST";
+
+	case Type::BOOL_LIST:
+		return "BOOL_LIST";
+
+	case Type::VOID_FUNCTION:
+		return "VOID_FUNCTION";
+
+	case Type::FLOAT_FUNCTION:
+		return "FLOAT_FUNCTION";
+
+	case Type::INT_FUNCTION:
+		return "INT_FUNCTION";
+
+	case Type::BOOL_FUNCTION:
+		return "BOOL_FUNCTION";
+	}
+
+	return "NONE";
+}

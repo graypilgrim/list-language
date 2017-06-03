@@ -37,6 +37,8 @@ public:
 	void setFuncArgsNo(size_t number);
 	size_t getFuncArgsNo();
 
+	static std::string typeToString(Type type);
+
 private:
 	std::string identifier;
 	Type type;

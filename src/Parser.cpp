@@ -18,6 +18,8 @@ std::shared_ptr<DerivationTree> Parser::run() {
 	nextAtom(root);
 	root->addChild(funsDecls(root));
 
+	tree->fillSymbolTables();
+
 	return tree;
 }
 
@@ -493,15 +495,17 @@ std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<Derivatio
 	auto node = std::make_shared<DerivationNode>("identifier", parent);
 
 	auto t = types.find(atom);
-	auto id = keywords.find(atom);
-	if (t != types.end() || id != keywords.end())
+	auto keyword = keywords.find(atom);
+	if (t != types.end() || keyword != keywords.end())
 		throw std::domain_error(std::string(__FUNCTION__) + " Identifier expected at line: " + currentLine());
 
+	auto label = atom;
+	auto idNode = nextAtom(node);
 	auto table = node->getSymbolTable();
 	auto entry = std::make_shared<SymbolTableEntry>();
-	table->addEntry(atom, entry, node);
+	table->addEntry(label, entry, idNode);
 
-	node->addChild(nextAtom(node));
+	node->addChild(idNode);
 
 	return node;
 }
