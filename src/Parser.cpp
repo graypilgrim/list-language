@@ -13,8 +13,8 @@ Parser::Parser(const std::shared_ptr<Lexer> &lexer)
 
 std::shared_ptr<DerivationTree> Parser::run() {
 	auto root = std::make_shared<DerivationNode>("program");
-	root->createScope();
 	tree = std::make_shared<DerivationTree>(root);
+	tree->pushTable(root->createScope());
 	nextAtom(root);
 	root->addChild(funsDecls(root));
 
@@ -58,9 +58,10 @@ std::shared_ptr<DerivationNode> Parser::funDecl(const std::weak_ptr<DerivationNo
 		node->addChild(nextAtom(node));
 	} else if (atom == "(") {
 		node->addChild(nextAtom(node));
-		if (atom != ")")
+		if (atom != ")") {
+			tree->pushTable(node->createScope());
 			node->addChild(args(node));
-		else
+		} else
 			node->addChild(nextAtom(node));
 	} else
 		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
@@ -94,7 +95,7 @@ std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode
 	auto node = std::make_shared<DerivationNode>("stmts", parent);
 	if (atom == "{"){
 		node->addChild(nextAtom(node));
-		node->createScope();
+		tree->pushTable(node->createScope());
 
 		while (atom != "}")
 			node->addChild(stmt(node));
@@ -492,6 +493,10 @@ std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<Derivatio
 	auto id = keywords.find(atom);
 	if (t != types.end() || id != keywords.end())
 		throw std::domain_error(std::string(__FUNCTION__) + " Identifier expected at line: " + currentLine());
+
+	auto table = node->getSymbolTable();
+	auto entry = std::make_shared<SymbolTableEntry>();
+	table->addEntry(atom, entry, node);
 
 	node->addChild(nextAtom(node));
 

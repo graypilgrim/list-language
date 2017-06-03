@@ -6,19 +6,28 @@
 
 enum class Type
 {
-	VOID,
 	INT,
 	FLOAT,
 	BOOL,
-	TABLE,
-	LIST,
-	FUNCTION
+	INT_TABLE,
+	FLOAT_TABLE,
+	BOOL_TABLE,
+	INT_LIST,
+	FLOAT_LIST,
+	BOOL_LIST,
+	VOID_FUNCTION,
+	INT_FUNCTION,
+	FLOAT_FUNCTION,
+	BOOL_FUNCTION,
 };
 
 class SymbolTableEntry
 {
 public:
-	SymbolTableEntry(const std::string &name);
+	SymbolTableEntry() = default;
+
+	void setIdentifier(const std::string &identifier);
+	std::string getIdentifier();
 
 	void setType(Type type);
 	Type getType();
@@ -26,27 +35,13 @@ public:
 	void setValue(const std::shared_ptr<void> &value);
 	std::shared_ptr<void> getValue();
 
-	void setTableType(Type type);
-	Type getTableType();
-
-	void setListType(Type type);
-	Type getListType();
-
-	void setFuncType(Type type);
-	Type getFuncType();
-
 	void setFuncArgsNo(size_t number);
 	size_t getFuncArgsNo();
 
 private:
-	std::string name;
+	std::string identifier;
 	Type type;
 	std::shared_ptr<void> value;
-
-	Type tableType;
-	Type listType;
-
-	Type funcType;
 	size_t funcArgsNo;
 };
 

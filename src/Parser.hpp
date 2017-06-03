@@ -4,6 +4,7 @@
 #include "GlobalItem.hpp"
 #include "Lexer.hpp"
 #include "DerivationTree.hpp"
+#include "SymbolTableEntry.hpp"
 
 #include <vector>
 #include <set>
@@ -65,7 +66,6 @@ private:
 	std::shared_ptr<Lexer> lexer;
 	std::set<std::string> keywords;
 	std::set<std::string> types;
-	std::unordered_map<std::string, size_t> globalItems;
 	std::shared_ptr<DerivationTree> tree;
 };
 

@@ -4,19 +4,27 @@
 #include "DerivationNode.hpp"
 #include "SymbolTable.hpp"
 
-#include <unordered_map>
+#include <vector>
 
 class DerivationTree
 {
 public:
 	DerivationTree() = default;
 	DerivationTree(const std::shared_ptr<DerivationNode> &root);
+
+	std::shared_ptr<DerivationNode> getParent();
+
+	void pushTable(const std::shared_ptr<SymbolTable> &table);
 	void execute();
-	void print();
+
+	void fillSymbolTables();
+	void printTree();
+	void printSymbolTables();
 
 private:
 	std::shared_ptr<DerivationNode> root;
 	std::shared_ptr<DerivationNode> current;
+	std::vector<std::shared_ptr<SymbolTable>> symbolTables;
 };
 
 #endif

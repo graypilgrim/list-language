@@ -12,13 +12,15 @@ class SymbolTable
 public:
 	void addEntry(const std::string &name,
 	         const std::shared_ptr<SymbolTableEntry> &entry,
-			 const std::shared_ptr<DerivationNode> &node);
+			 const std::weak_ptr<DerivationNode> &node);
 
 	std::shared_ptr<SymbolTableEntry> getEntry(const std::string &name);
 	std::shared_ptr<DerivationNode> getNode(const std::string &name);
 
+	std::unordered_map<std::string, std::pair<std::shared_ptr<SymbolTableEntry>, std::weak_ptr<DerivationNode>>> getScope();
+
 private:
-	std::unordered_map<std::string, std::pair<std::shared_ptr<SymbolTableEntry>, std::shared_ptr<DerivationNode>>> scope;
+	std::unordered_map<std::string, std::pair<std::shared_ptr<SymbolTableEntry>, std::weak_ptr<DerivationNode>>> scope;
 };
 
 #endif

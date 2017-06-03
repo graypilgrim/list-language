@@ -21,7 +21,7 @@ public:
 
 	void addChild(const std::shared_ptr<DerivationNode> &child);
 
-	void createScope();
+	std::shared_ptr<SymbolTable> createScope();
 	std::shared_ptr<SymbolTable> getSymbolTable();
 
 private:

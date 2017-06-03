@@ -1,8 +1,14 @@
 #include "SymbolTableEntry.hpp"
 
-SymbolTableEntry::SymbolTableEntry(const std::string &name)
-	: name(name)
-{}
+void SymbolTableEntry::setIdentifier(const std::string &identifier)
+{
+	this->identifier = identifier;
+}
+
+std::string SymbolTableEntry::getIdentifier()
+{
+	return identifier;
+}
 
 void SymbolTableEntry::setType(Type type)
 {
