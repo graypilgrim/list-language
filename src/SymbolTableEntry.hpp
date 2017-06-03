@@ -9,9 +9,6 @@ enum class Type
 	INT,
 	FLOAT,
 	BOOL,
-	INT_TABLE,
-	FLOAT_TABLE,
-	BOOL_TABLE,
 	INT_LIST,
 	FLOAT_LIST,
 	BOOL_LIST,
@@ -25,6 +22,8 @@ class SymbolTableEntry
 {
 public:
 	SymbolTableEntry() = default;
+
+	bool isFunction();
 
 	void setIdentifier(const std::string &identifier);
 	std::string getIdentifier();

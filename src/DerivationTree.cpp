@@ -19,8 +19,15 @@ void DerivationTree::execute()
 void DerivationTree::fillSymbolTables()
 {
 	for (auto &i : symbolTables) {
-		for (auto &entry : i->getScope()) {
-			
+		for (auto &tuple : i->getScope()) {
+			auto node = tuple.second.second.lock();
+			auto entry = tuple.second.first;
+			setType(node, entry);
+
+			if (entry->isFunction())
+				setArgsNo(node, entry);
+			else
+				setValueMaybe(node, entry);
 		}
 	}
 }
@@ -53,4 +60,67 @@ void DerivationTree::printSymbolTables()
 			std::cout << entry.first << " ";
 		std::cout << std::endl;
 	}
+}
+
+void DerivationTree::setType(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
+{
+	bool list = false;
+	bool function = false;
+	auto grandParent = node->getParent()->getParent();
+
+	if (grandParent->getLabel() == "funDecl")
+		function = true;
+
+	auto typeNode = grandParent->getChildren()[0]->getChildren()[0];
+	if (typeNode->getLabel() == "list") {
+		list = true;
+		typeNode = typeNode->getChildren()[2]->getChildren()[0];
+	}
+
+	entry->setType(deduceType(list, function, typeNode->getLabel()));
+}
+
+void DerivationTree::setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
+{
+
+}
+
+void DerivationTree::setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
+{
+
+}
+
+Type DerivationTree::deduceType(bool isList, bool isFunction, const std::string &type)
+{
+	if (type == "int" && isList)
+		return Type::INT_LIST;
+
+	if (type == "float" && isList)
+		return Type::FLOAT_LIST;
+
+	if (type == "bool" && isList)
+		return Type::BOOL_LIST;
+
+	if (type == "int" && isFunction)
+		return Type::INT_FUNCTION;
+
+	if (type == "float" && isFunction)
+		return Type::FLOAT_FUNCTION;
+
+	if (type == "bool" && isFunction)
+		return Type::BOOL_FUNCTION;
+
+	if (type == "void" && isFunction)
+		return Type::VOID_FUNCTION;
+
+	if (type == "int")
+		return Type::INT;
+
+	if (type == "float")
+		return Type::FLOAT;
+
+	if (type == "bool")
+		return Type::BOOL;
+
+	return Type::INT;
 }

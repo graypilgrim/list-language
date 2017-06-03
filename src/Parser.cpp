@@ -282,8 +282,11 @@ std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNo
 		node->addChild(varDef(node));
 	} else if (atom == ";") {
 		node->addChild(nextAtom(node));
+	} else if (atom == "[") {
+		node->addChild(nextAtom(node));
+		node->addChild(indexStmt(node));
 	} else
-		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
+		throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 
 	return node;
 }

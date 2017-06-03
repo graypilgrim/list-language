@@ -142,12 +142,13 @@ TEST_CASE( "Parser: mocked stream") {
 	}
 
 	SECTION( "IndexStatement - correct") {
-		std::string exText("int fun() { table[i + 4]; }" );
+		std::string exText("int fun() { list(bool) table[i + 4]; }" );
 
 		*s << exText;
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
+		tree->printTree();
 	}
 
 	SECTION( "ForLoop - correct") {

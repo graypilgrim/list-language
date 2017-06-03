@@ -1,5 +1,10 @@
 #include "SymbolTableEntry.hpp"
 
+bool SymbolTableEntry::isFunction()
+{
+	return type == Type::VOID_FUNCTION || type == Type::INT_FUNCTION || type == Type::FLOAT_FUNCTION || type == Type::BOOL_FUNCTION;
+}
+
 void SymbolTableEntry::setIdentifier(const std::string &identifier)
 {
 	this->identifier = identifier;
@@ -28,36 +33,6 @@ void SymbolTableEntry::setValue(const std::shared_ptr<void> &value)
 std::shared_ptr<void> SymbolTableEntry::getValue()
 {
 	return value;
-}
-
-void SymbolTableEntry::setTableType(Type type)
-{
-	tableType = type;
-}
-
-Type SymbolTableEntry::getTableType()
-{
-	return tableType;
-}
-
-void SymbolTableEntry::setListType(Type type)
-{
-	listType = type;
-}
-
-Type SymbolTableEntry::getListType()
-{
-	return listType;
-}
-
-void SymbolTableEntry::setFuncType(Type type)
-{
-	funcType = type;
-}
-
-Type SymbolTableEntry::getFuncType()
-{
-	return funcType;
 }
 
 void SymbolTableEntry::setFuncArgsNo(size_t number)
