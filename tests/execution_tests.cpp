@@ -12,7 +12,7 @@ TEST_CASE( "Execution: mocked stream") {
 		"int main() {\n"
 		"	int a = 5;\n"
 		"	int b = 3;\n"
-		"	int c = a + b + 5;\n"
+		"	int c = a + b + 3;\n"
 		"}";
 
 		std::string exText(program);
@@ -24,6 +24,7 @@ TEST_CASE( "Execution: mocked stream") {
 		tree->printTree();
 		tree->printSymbolTables();
 		tree->execute();
+		tree->printSymbolTables();
 	}
 
 }

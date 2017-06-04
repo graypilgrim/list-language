@@ -63,3 +63,14 @@ std::shared_ptr<SymbolTable> DerivationNode::getSymbolTable()
 	auto p = parent.lock();
 	return p->getSymbolTable();
 }
+
+size_t DerivationNode::findIndexInParent()
+{
+	auto children = getParent()->getChildren();
+
+	for (size_t i = 0; i < children.size(); ++i)
+		if (children[i].get() == this)
+			return i;
+
+	return 0;
+}

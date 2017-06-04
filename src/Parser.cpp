@@ -281,7 +281,7 @@ std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNo
 
 	if (atom == "=") {
 		node->addChild(nextAtom(node));
-		node->addChild(varDef(node));
+		node->addChild(assignStmt(node));
 	} else if (atom == ";") {
 		node->addChild(nextAtom(node));
 	} else if (atom == "[") {

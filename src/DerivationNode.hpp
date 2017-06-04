@@ -21,12 +21,12 @@ public:
 	std::shared_ptr<DerivationNode> getParent() const;
 	std::vector<std::shared_ptr<DerivationNode>> getChildren() const;
 
-
-
 	void addChild(const std::shared_ptr<DerivationNode> &child);
 
 	std::shared_ptr<SymbolTable> createScope();
 	std::shared_ptr<SymbolTable> getSymbolTable();
+
+	size_t findIndexInParent();
 
 private:
 	static size_t index;
