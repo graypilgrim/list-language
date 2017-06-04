@@ -12,7 +12,7 @@ public:
 	DerivationTree() = default;
 	DerivationTree(const std::shared_ptr<DerivationNode> &root);
 
-	std::shared_ptr<DerivationNode> getParent();
+	std::shared_ptr<DerivationNode> getCurrent();
 
 	void pushTable(const std::shared_ptr<SymbolTable> &table);
 	void execute();
@@ -26,10 +26,13 @@ private:
 	void setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
 	void setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
 	Type deduceType(bool isList, bool isFunction, const std::string &type);
+	std::shared_ptr<DerivationNode> findMain();
+	void nextNode();
 
 	std::shared_ptr<DerivationNode> root;
 	std::shared_ptr<DerivationNode> current;
 	std::vector<std::shared_ptr<SymbolTable>> symbolTables;
+	std::vector<std::shared_ptr<DerivationNode>> dfsStack;
 };
 
 #endif

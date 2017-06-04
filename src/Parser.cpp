@@ -111,7 +111,7 @@ std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode
 }
 
 std::shared_ptr<DerivationNode> Parser::stmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("stmts", parent);
+	auto node = std::make_shared<DerivationNode>("stmt", parent);
 
 	if (atom == "if") {
 		node->addChild(nextAtom(node));
@@ -266,7 +266,7 @@ std::shared_ptr<DerivationNode> Parser::varDef(const std::weak_ptr<DerivationNod
 	} else if (isAtomBoolVal()) {
 		node->addChild(nextAtom(node));
 	} else
-		node->addChild(identifier(node));
+		node->addChild(expr(node));
 
 	node->addChild(semicolon(node));
 
@@ -393,7 +393,7 @@ std::shared_ptr<DerivationNode> Parser::expr(const std::weak_ptr<DerivationNode>
 	auto node = std::make_shared<DerivationNode>("expr", parent);
 
 	node->addChild(andExpr(node));
-	if (atom == "||") {
+	while (atom == "||") {
 		node->addChild(nextAtom(node));
 		node->addChild(andExpr(node));
 	}
@@ -405,7 +405,7 @@ std::shared_ptr<DerivationNode> Parser::andExpr(const std::weak_ptr<DerivationNo
 	auto node = std::make_shared<DerivationNode>("andExpr", parent);
 
 	node->addChild(compExpr(node));
-	if (atom == "&&") {
+	while (atom == "&&") {
 		node->addChild(nextAtom(node));
 		node->addChild(compExpr(node));
 	}
@@ -417,7 +417,7 @@ std::shared_ptr<DerivationNode> Parser::compExpr(const std::weak_ptr<DerivationN
 	auto node = std::make_shared<DerivationNode>("comExpr", parent);
 
 	node->addChild(sumExpr(node));
-	if (isAtomCompOperator()) {
+	while (isAtomCompOperator()) {
 		node->addChild(nextAtom(node));
 		node->addChild(sumExpr(node));
 	}
@@ -429,7 +429,7 @@ std::shared_ptr<DerivationNode> Parser::sumExpr(const std::weak_ptr<DerivationNo
 	auto node = std::make_shared<DerivationNode>("sumExpr", parent);
 
 	node->addChild(mulExpr(node));
-	if (isAtomSumOperator()) {
+	while (isAtomSumOperator()) {
 		node->addChild(nextAtom(node));
 		node->addChild(mulExpr(node));
 	}
@@ -441,7 +441,7 @@ std::shared_ptr<DerivationNode> Parser::mulExpr(const std::weak_ptr<DerivationNo
 	auto node = std::make_shared<DerivationNode>("mulExpr", parent);
 
 	node->addChild(val(node));
-	if (isAtomMulOperator()) {
+	while (isAtomMulOperator()) {
 		node->addChild(nextAtom(node));
 		node->addChild(val(node));
 	}

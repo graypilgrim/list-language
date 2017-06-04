@@ -6,6 +6,11 @@ DerivationTree::DerivationTree(const std::shared_ptr<DerivationNode> &root)
 	: root(root)
 {}
 
+std::shared_ptr<DerivationNode> DerivationTree::getCurrent()
+{
+	return current;
+}
+
 void DerivationTree::pushTable(const std::shared_ptr<SymbolTable> &table)
 {
 	symbolTables.emplace_back(table);
@@ -13,7 +18,15 @@ void DerivationTree::pushTable(const std::shared_ptr<SymbolTable> &table)
 
 void DerivationTree::execute()
 {
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": execution" << std::endl;
+	current = findMain();
+	if (!current)
+		throw std::runtime_error("No main function");
 
+	while (current) {
+		std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << current->getLabel() << std::endl;
+		nextNode();
+	}
 }
 
 void DerivationTree::fillSymbolTables()
@@ -26,8 +39,6 @@ void DerivationTree::fillSymbolTables()
 
 			if (entry->isFunction())
 				setArgsNo(node, entry);
-			else
-				setValueMaybe(node, entry);
 		}
 	}
 }
@@ -42,7 +53,8 @@ void DerivationTree::printTree()
 		stack.pop_back();
 
 		for (size_t i = 0 ; i < node->getDepth(); ++i)
-			std::cout << " ";
+			std::cout << "--";
+		std::cout << "|";
 		std::cout << node->getLabel() << std::endl;
 
 		auto children = node->getChildren();
@@ -99,11 +111,6 @@ void DerivationTree::setArgsNo(const std::shared_ptr<DerivationNode> &node, cons
 	entry->setFuncArgsNo(counter);
 }
 
-void DerivationTree::setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
-{
-
-}
-
 Type DerivationTree::deduceType(bool isList, bool isFunction, const std::string &type)
 {
 	if (type == "int" && isList)
@@ -137,4 +144,39 @@ Type DerivationTree::deduceType(bool isList, bool isFunction, const std::string 
 		return Type::BOOL;
 
 	return Type::FLOAT;
+}
+
+std::shared_ptr<DerivationNode> DerivationTree::findMain()
+{
+	for (auto &i : symbolTables) {
+		for (auto &tuple : i->getScope()) {
+			auto node = tuple.second.second.lock();
+			if (node->getLabel() == "main") {
+				auto grandParent = node->getParent()->getParent();
+				auto funDef = grandParent->getChildren().back();
+				dfsStack.push_back(funDef);
+				return node;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+void DerivationTree::nextNode()
+{
+	if (dfsStack.empty()) {
+		current = nullptr;
+		return;
+	}
+
+	auto node = dfsStack.back();
+	dfsStack.pop_back();
+
+	auto children = node->getChildren();
+
+	for (auto n = children.rbegin(); n != children.rend(); ++n)
+		dfsStack.push_back(*n);
+
+	current = node;
 }
