@@ -21,10 +21,31 @@ TEST_CASE( "Execution: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
-		tree->printTree();
-		tree->printSymbolTables();
+		// tree->printTree();
 		tree->execute();
-		tree->printSymbolTables();
+		// tree->printSymbolTables();
+	}
+
+	SECTION( "Simple if statement") {
+		const char *program =
+		"int main() {\n"
+		"	int a = 3;\n"
+		"	int b = 6;\n"
+		"	bool greater = false;\n"
+		"	if (a > b)\n"
+		"		greater = true;\n"
+		"}";
+
+		std::string exText(program);
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		auto tree = parser->run();
+		// tree->printTree();
+		tree->execute();
+		// tree->printTree();
+		// tree->printSymbolTables();
 	}
 
 }

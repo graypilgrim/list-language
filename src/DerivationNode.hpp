@@ -20,6 +20,7 @@ public:
 	void setVisited();
 	std::shared_ptr<DerivationNode> getParent() const;
 	std::vector<std::shared_ptr<DerivationNode>> getChildren() const;
+	void removeChild(size_t index);
 
 	void addChild(const std::shared_ptr<DerivationNode> &child);
 

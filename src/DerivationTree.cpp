@@ -23,8 +23,12 @@ void DerivationTree::execute()
 		throw std::runtime_error("No main function");
 
 	while (current) {
+		// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << current->getLabel() << std::endl;
+
 		if (current->getLabel() == "varDef" || current->getLabel() == "assignStmt")
 			assignValue();
+		else if (current->getLabel() == "condStmt")
+			processIf();
 
 		nextNode();
 	}
@@ -209,13 +213,23 @@ void DerivationTree::assignValue()
 	auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
 	auto lVal = lValNode->getLabel();
 	auto lValEntry = lValNode->getSymbolTable()->getEntry(lVal);
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": lVal = " << lVal << std::endl;
 
 	auto rValNode = current->getChildren()[0];
 	auto rVal = rValNode->getLabel();
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": rVal = " << rVal << std::endl;
 	lValEntry->setValue(evaluate(rValNode));
-	printSymbolTables();
+}
+
+void DerivationTree::processIf()
+{
+	auto condNode = current->getChildren()[0]->getChildren()[1];
+	auto condition = evaluate(condNode);
+	if (*(bool*)(condition.get())) {
+		current = current->getChildren()[1];
+	} else {
+		current->removeChild(1);
+		dfsStack.pop_back();
+		dfsStack.pop_back();
+	}
 }
 
 std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationNode> &node)
@@ -228,6 +242,10 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 			return std::shared_ptr<void>(new int(*(int*)(val.get())));
 		} else {
 			auto val = node->getChildren()[0]->getLabel();
+			if (val == "true")
+				val = "1";
+			else if (val == "false")
+				val = "0";
 			return std::shared_ptr<void>(new int(std::stoi(val)));
 		}
 	}
@@ -249,17 +267,10 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
 
 		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
-			std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": up " << *(int*)(result.get()) << std::endl;
-			printSymbolTables();
-
 			if (node->getChildren()[i]->getLabel() == "+")
 				*(int*)(result.get()) += *(int*)(evaluate(node->getChildren()[i+1]).get());
 			if (node->getChildren()[i]->getLabel() == "-")
 				*(int*)(result.get()) -= *(int*)(evaluate(node->getChildren()[i+1]).get());
-
-
-			std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": down " << std::endl;
-			printSymbolTables();
 		}
 
 		return result;

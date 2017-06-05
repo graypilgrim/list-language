@@ -29,6 +29,21 @@ std::vector<std::shared_ptr<DerivationNode>> DerivationNode::getChildren() const
 	return children;
 }
 
+void DerivationNode::removeChild(size_t index)
+{
+	if (index > children.size() - 1)
+		return;
+
+	size_t counter = 0;
+
+	for (auto it = children.begin(); it != children.end(); ++it) {
+		if (counter++ == index) {
+			children.erase(it);
+			break;
+		}
+	}
+}
+
 size_t DerivationNode::getDepth() const
 {
 	return depth;
