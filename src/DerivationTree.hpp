@@ -28,8 +28,10 @@ private:
 	Type deduceType(bool isList, bool isFunction, const std::string &type);
 	std::shared_ptr<DerivationNode> findMain();
 	void nextNode();
-	void assignValue();
+	void assignValue(const std::shared_ptr<DerivationNode> &n = nullptr);
+	void processStmt();
 	void processIf();
+	void processFor();
 	std::shared_ptr<void> evaluate(const std::shared_ptr<DerivationNode> &node);
 
 	std::shared_ptr<DerivationNode> root;

@@ -23,13 +23,14 @@ TEST_CASE( "Execution: mocked stream") {
 		auto tree = parser->run();
 		// tree->printTree();
 		tree->execute();
-		// tree->printSymbolTables();
+		std::cout << "#1 Simple sum statement" << std::endl;
+		tree->printSymbolTables();
 	}
 
 	SECTION( "Simple if statement") {
 		const char *program =
 		"int main() {\n"
-		"	int a = 3;\n"
+		"	int a = 7;\n"
 		"	int b = 6;\n"
 		"	bool greater = false;\n"
 		"	if (a > b)\n"
@@ -45,7 +46,31 @@ TEST_CASE( "Execution: mocked stream") {
 		// tree->printTree();
 		tree->execute();
 		// tree->printTree();
+		std::cout << "#2 Simple if statement" << std::endl;
+		tree->printSymbolTables();
+	}
+
+	SECTION( "Simple for statement" ) {
+		const char *program =
+		"int main() {\n"
+		"	int a = 1;\n"
+		"	for (int i = 0; i < 8; i = i + 1;)\n"
+		"		a = a * 2;"
+		"}";
+
+		std::string exText(program);
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		auto tree = parser->run();
+		// tree->printTree();
 		// tree->printSymbolTables();
+		tree->execute();
+
+		// tree->printTree();
+		std::cout << "#3 Simple for statement" << std::endl;
+		tree->printSymbolTables();
 	}
 
 }

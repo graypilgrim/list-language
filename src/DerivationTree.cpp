@@ -23,13 +23,7 @@ void DerivationTree::execute()
 		throw std::runtime_error("No main function");
 
 	while (current) {
-		// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << current->getLabel() << std::endl;
-
-		if (current->getLabel() == "varDef" || current->getLabel() == "assignStmt")
-			assignValue();
-		else if (current->getLabel() == "condStmt")
-			processIf();
-
+		processStmt();
 		nextNode();
 	}
 }
@@ -58,7 +52,7 @@ void DerivationTree::printTree()
 		stack.pop_back();
 
 		for (size_t i = 0 ; i < node->getDepth(); ++i)
-			std::cout << "--";
+			std::cout << "-";
 		std::cout << "|";
 		std::cout << node->getLabel() << std::endl;
 
@@ -71,8 +65,11 @@ void DerivationTree::printTree()
 
 void DerivationTree::printSymbolTables()
 {
+	std::cout << "Symbol tables" << std::endl;
+	size_t counter = 0;
+
 	for (auto &i : symbolTables) {
-		std::cout << "Table: " << std::endl;
+		std::cout << "  Table" << counter++ << ": " << std::endl;
 		for (auto &tuple : i->getScope()) {
 			auto entry = tuple.second.first;
 
@@ -205,18 +202,30 @@ void DerivationTree::nextNode()
 	current = node;
 }
 
-void DerivationTree::assignValue()
+void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 {
-	auto indexInParent = current->findIndexInParent();
-	auto parent = current->getParent();
+	auto node = n ? n : current;
+
+	auto indexInParent = node->findIndexInParent();
+	auto parent = node->getParent();
 
 	auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
 	auto lVal = lValNode->getLabel();
 	auto lValEntry = lValNode->getSymbolTable()->getEntry(lVal);
 
-	auto rValNode = current->getChildren()[0];
+	auto rValNode = node->getChildren()[0];
 	auto rVal = rValNode->getLabel();
 	lValEntry->setValue(evaluate(rValNode));
+}
+
+void DerivationTree::processStmt()
+{
+	if (current->getLabel() == "varDef" || current->getLabel() == "assignStmt")
+		assignValue();
+	else if (current->getLabel() == "condStmt")
+		processIf();
+	else if (current->getLabel() == "forStmt")
+		processFor();
 }
 
 void DerivationTree::processIf()
@@ -229,6 +238,42 @@ void DerivationTree::processIf()
 		current->removeChild(1);
 		dfsStack.pop_back();
 		dfsStack.pop_back();
+	}
+}
+
+void DerivationTree::processFor()
+{
+	auto forNode = current;
+	auto loopBodyNode = current->getChildren()[6];
+	auto endSign = loopBodyNode->getChildren().size() == 1 ? ";" : "}";
+
+	while (current->getLabel() != "assignStmt")
+		nextNode();
+	assignValue();
+
+	while (current->getLabel() != ";")
+		nextNode();
+	nextNode();
+
+	auto condNode = current;
+
+	while (current->getLabel() != "assignStmt")
+		nextNode();
+
+	auto iteratorChangeNode = current;
+
+	while (current->getLabel() != ")")
+		nextNode();
+	dfsStack.pop_back();
+
+	while (*(bool*)(evaluate(condNode).get())) {
+		dfsStack.push_back(loopBodyNode);
+		nextNode();
+		while (current->getLabel() != endSign) {
+			processStmt();
+			nextNode();
+		}
+		assignValue(iteratorChangeNode);
 	}
 }
 
