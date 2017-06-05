@@ -499,13 +499,16 @@ std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<Derivatio
 	if (t != types.end() || keyword != keywords.end())
 		throw std::domain_error(std::string(__FUNCTION__) + " Identifier expected at line: " + currentLine());
 
-	auto label = atom;
-	auto idNode = nextAtom(node);
-	auto table = node->getSymbolTable();
-	auto entry = std::make_shared<SymbolTableEntry>();
-	table->addEntry(label, entry, idNode);
 
-	node->addChild(idNode);
+	if (node->getParent()->getChildren().size() > 0 && node->getParent()->getChildren()[0]->getLabel() == "type") {
+		auto label = atom;
+		auto idNode = nextAtom(node);
+		auto table = node->getSymbolTable();
+		auto entry = std::make_shared<SymbolTableEntry>();
+		table->addEntry(label, entry, idNode);
+		node->addChild(idNode);
+	} else
+		node->addChild(nextAtom(node));
 
 	return node;
 }
