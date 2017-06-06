@@ -21,7 +21,7 @@ enum class Type
 class SymbolTableEntry
 {
 public:
-	SymbolTableEntry() = default;
+	SymbolTableEntry();
 
 	bool isFunction();
 
@@ -37,6 +37,9 @@ public:
 	void setFuncArgsNo(size_t number);
 	size_t getFuncArgsNo();
 
+	void setListSize(size_t number);
+	size_t getListSize();
+
 	static std::string typeToString(Type type);
 
 private:
@@ -44,6 +47,7 @@ private:
 	Type type;
 	std::shared_ptr<void> value;
 	size_t funcArgsNo;
+	size_t listSize;
 };
 
 #endif

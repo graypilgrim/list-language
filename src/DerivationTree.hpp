@@ -32,6 +32,8 @@ private:
 	void processStmt();
 	void processIf();
 	void processFor();
+	void processListStmt();
+	void processIndexStmt();
 	std::shared_ptr<void> evaluate(const std::shared_ptr<DerivationNode> &node);
 
 	std::shared_ptr<DerivationNode> root;

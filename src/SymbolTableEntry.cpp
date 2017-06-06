@@ -1,5 +1,9 @@
 #include "SymbolTableEntry.hpp"
 
+SymbolTableEntry::SymbolTableEntry()
+	: funcArgsNo(0), listSize(0)
+{}
+
 bool SymbolTableEntry::isFunction()
 {
 	return type == Type::VOID_FUNCTION || type == Type::INT_FUNCTION || type == Type::FLOAT_FUNCTION || type == Type::BOOL_FUNCTION;
@@ -43,6 +47,16 @@ void SymbolTableEntry::setFuncArgsNo(size_t number)
 size_t SymbolTableEntry::getFuncArgsNo()
 {
 	return funcArgsNo;
+}
+
+void SymbolTableEntry::setListSize(size_t number)
+{
+	listSize = number;
+}
+
+size_t SymbolTableEntry::getListSize()
+{
+	return listSize;
 }
 
 std::string SymbolTableEntry::typeToString(Type type)

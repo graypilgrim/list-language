@@ -64,12 +64,32 @@ TEST_CASE( "Execution: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
-		tree->printTree();
-		tree->printSymbolTables();
+		// tree->printTree();
+		// tree->printSymbolTables();
 		tree->execute();
 
-		// tree->printTree();
 		std::cout << "#3 Simple for statement" << std::endl;
+		tree->printSymbolTables();
+	}
+
+	SECTION( "Simple list statement" ) {
+		const char *program =
+		"int main() {\n"
+		"	list(int) l[10];\n"
+		"	[i + 3 for i in l];\n"
+		"}";
+
+		std::string exText(program);
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		auto tree = parser->run();
+		tree->printTree();
+		// tree->printSymbolTables();
+		tree->execute();
+
+		std::cout << "#4 Simple for statement" << std::endl;
 		tree->printSymbolTables();
 	}
 

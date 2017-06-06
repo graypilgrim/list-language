@@ -75,7 +75,8 @@ void DerivationTree::printSymbolTables()
 
 			std::cout << "\t"<< tuple.first
 				<< " " << SymbolTableEntry::typeToString(entry->getType())
-				<< " " << entry->getFuncArgsNo();
+				<< " " << entry->getFuncArgsNo()
+				<< " " << entry->getListSize();
 
 			if (entry->getValue() == nullptr) {
 				std::cout << std::endl;
@@ -220,12 +221,18 @@ void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 
 void DerivationTree::processStmt()
 {
-	if (current->getLabel() == "varDef" || current->getLabel() == "assignStmt")
+	auto label = current->getLabel();
+
+	if (label == "varDef" || label == "assignStmt")
 		assignValue();
-	else if (current->getLabel() == "condStmt")
+	else if (label == "condStmt")
 		processIf();
-	else if (current->getLabel() == "forStmt")
+	else if (label == "forStmt")
 		processFor();
+	else if (label == "listStmt")
+		processListStmt();
+	else if(label == "indexStmt")
+		processIndexStmt();
 }
 
 void DerivationTree::processIf()
@@ -274,6 +281,28 @@ void DerivationTree::processFor()
 			nextNode();
 		}
 		assignValue(iteratorChangeNode);
+	}
+}
+
+void DerivationTree::processListStmt()
+{
+	//TODO: assign expression result for currently processed list element
+}
+
+void DerivationTree::processIndexStmt()
+{
+	if (current->getParent()->getLabel() == "varDecl") {
+		auto siblings = current->getParent()->getChildren();
+		std::string id;
+		for (auto &n : siblings)
+			if (n->getLabel() == "identifier") {
+				id = n->getChildren()[0]->getLabel();
+				break;
+			}
+
+		auto entry = current->getSymbolEntry(id);
+		auto listSize = evaluate(current->getChildren()[0]);
+		entry->setListSize(*(int*)(listSize.get()));
 	}
 }
 
