@@ -76,7 +76,8 @@ TEST_CASE( "Execution: mocked stream") {
 		const char *program =
 		"int main() {\n"
 		"	list(int) l[10];\n"
-		"	[i + 3 for i in l];\n"
+		"	[3 for i in l];\n"
+		"	[3 * i for i in l];\n"
 		"}";
 
 		std::string exText(program);

@@ -92,6 +92,14 @@ void DerivationTree::printSymbolTables()
 			if (entry->getType() == Type::BOOL) {
 				std::cout << " " << *(bool*)(entry->getValue().get());
 			}
+			if (entry->getType() == Type::INT_LIST) {
+				std::cout << " [ ";
+				auto array = (int*)(entry->getValue().get());
+				for (size_t i = 0; i < entry->getListSize(); ++i)
+					std::cout << array[i] << " ";
+
+				std::cout << "]";
+			}
 			std::cout << std::endl;
 		}
 		std::cout << std::endl;
@@ -286,7 +294,31 @@ void DerivationTree::processFor()
 
 void DerivationTree::processListStmt()
 {
-	//TODO: assign expression result for currently processed list element
+	auto table = current->createScope();
+	pushTable(table);
+	auto entry = std::make_shared<SymbolTableEntry>();
+	entry->setValue(std::shared_ptr<void>(new int));
+	auto idNode = current->getChildren()[0]->getChildren()[2]->getChildren()[0];
+	auto id = idNode->getLabel();
+	table->addEntry(id, entry, idNode);
+
+	auto listName = current->getChildren()[0]->getChildren()[4]->getChildren()[0]->getLabel();
+	auto listEntry = current->getSymbolEntry(listName);
+
+	if (listEntry->getType() == Type::INT_LIST)
+		entry->setType(Type::INT);
+	else if (listEntry->getType() == Type::BOOL_LIST)
+		entry->setType(Type::BOOL);
+	else if (listEntry->getType() == Type::FLOAT_LIST)
+		entry->setType(Type::FLOAT);
+
+	auto listVal = (int*)(listEntry->getValue().get());
+	for (size_t i = 0; i < listEntry->getListSize(); ++i) {
+		auto itVal = entry->getValue();
+		*(int*)(itVal.get()) = listVal[i];
+		auto newVal = evaluate(current->getChildren()[0]->getChildren()[0]);
+		listVal[i] = *(int*)(newVal.get());
+	}
 }
 
 void DerivationTree::processIndexStmt()
@@ -302,7 +334,10 @@ void DerivationTree::processIndexStmt()
 
 		auto entry = current->getSymbolEntry(id);
 		auto listSize = evaluate(current->getChildren()[0]);
-		entry->setListSize(*(int*)(listSize.get()));
+		auto listSizeNumber = *(int*)(listSize.get());
+		entry->setListSize(listSizeNumber);
+		auto val = std::shared_ptr<void>(new int[listSizeNumber]);
+		entry->setValue(val);
 	}
 }
 
