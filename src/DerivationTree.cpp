@@ -211,7 +211,7 @@ void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 
 	auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
 	auto lVal = lValNode->getLabel();
-	auto lValEntry = lValNode->getSymbolTable()->getEntry(lVal);
+	auto lValEntry = lValNode->getSymbolEntry(lVal);
 
 	auto rValNode = node->getChildren()[0];
 	auto rVal = rValNode->getLabel();
@@ -282,7 +282,7 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 	if (node->getLabel() == "val") {
 		if (node->getChildren()[0]->getLabel() == "identifier") {
 			auto id = node->getChildren()[0]->getChildren()[0];
-			auto entry = id->getSymbolTable()->getEntry(id->getLabel());
+			auto entry = id->getSymbolEntry(id->getLabel());
 			auto val = entry->getValue();
 			return std::shared_ptr<void>(new int(*(int*)(val.get())));
 		} else {

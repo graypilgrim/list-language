@@ -26,6 +26,7 @@ public:
 
 	std::shared_ptr<SymbolTable> createScope();
 	std::shared_ptr<SymbolTable> getSymbolTable();
+	std::shared_ptr<SymbolTableEntry> getSymbolEntry(const std::string &symbol);
 
 	size_t findIndexInParent();
 

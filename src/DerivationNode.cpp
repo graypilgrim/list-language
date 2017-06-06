@@ -79,6 +79,25 @@ std::shared_ptr<SymbolTable> DerivationNode::getSymbolTable()
 	return p->getSymbolTable();
 }
 
+std::shared_ptr<SymbolTableEntry> DerivationNode::getSymbolEntry(const std::string &symbol)
+{
+	std::shared_ptr<SymbolTableEntry> result;
+	if (localScope)
+		result = localScope->getEntry(symbol);
+	if (result)
+		return result;
+
+	auto p = parent.lock();
+
+	while (result == nullptr && p != nullptr) {
+		auto table = p->getSymbolTable();
+		result = table->getEntry(symbol);
+		p = p->getParent();
+	}
+
+	return result;
+}
+
 size_t DerivationNode::findIndexInParent()
 {
 	auto children = getParent()->getChildren();

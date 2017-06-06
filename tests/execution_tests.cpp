@@ -53,8 +53,9 @@ TEST_CASE( "Execution: mocked stream") {
 		const char *program =
 		"int main() {\n"
 		"	int a = 1;\n"
-		"	for (int i = 0; i < 8; i = i + 1;)\n"
-		"		a = a * 2;"
+		"	for (int i = 0; i < 8; i = i + 1;) {\n"
+		"		a = a * 2;\n"
+		"	}\n"
 		"}";
 
 		std::string exText(program);
@@ -63,8 +64,8 @@ TEST_CASE( "Execution: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
-		// tree->printTree();
-		// tree->printSymbolTables();
+		tree->printTree();
+		tree->printSymbolTables();
 		tree->execute();
 
 		// tree->printTree();
