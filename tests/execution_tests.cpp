@@ -95,4 +95,28 @@ TEST_CASE( "Execution: mocked stream") {
 		tree->printSymbolTables();
 	}
 
+	SECTION( "List statement with for" ) {
+		const char *program =
+		"int main() {\n"
+		"	list(int) l[10];\n"
+		"	[0 for i in l];\n"
+		"	for (int a = 0; a < 10; a = a + 1;) {\n"
+		"		l[a] = a;"
+		"	}\n"
+		"}";
+
+		std::string exText(program);
+
+		*s << exText;
+		lexer->setStream(exampleStream);
+
+		auto tree = parser->run();
+		// tree->printTree();
+		// tree->printSymbolTables();
+		tree->execute();
+
+		std::cout << "#5 Simple for statement" << std::endl;
+		tree->printSymbolTables();
+	}
+
 }

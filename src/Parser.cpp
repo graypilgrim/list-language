@@ -186,6 +186,7 @@ std::shared_ptr<DerivationNode> Parser::whileStmt(const std::weak_ptr<Derivation
 
 std::shared_ptr<DerivationNode> Parser::forStmt(const std::weak_ptr<DerivationNode> &parent) {
 	auto node = std::make_shared<DerivationNode>("forStmt", parent);
+	tree->pushTable(node->createScope());
 
 	if (atom != "(")
 		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
@@ -253,7 +254,12 @@ std::shared_ptr<DerivationNode> Parser::indexStmt(const std::weak_ptr<Derivation
 		throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
-	node->addChild(semicolon(node));
+
+	if (atom == "=") {
+		node->addChild(nextAtom(node));
+		node->addChild(assignStmt(node));
+	} else
+		node->addChild(semicolon(node));
 
 	return node;
 }

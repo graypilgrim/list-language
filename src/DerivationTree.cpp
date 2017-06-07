@@ -218,13 +218,27 @@ void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 	auto indexInParent = node->findIndexInParent();
 	auto parent = node->getParent();
 
-	auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
-	auto lVal = lValNode->getLabel();
-	auto lValEntry = lValNode->getSymbolEntry(lVal);
+	if (parent->getLabel() == "varDecl" || parent->getLabel() == "stmt") {
+		auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
+		auto lVal = lValNode->getLabel();
+		auto lValEntry = lValNode->getSymbolEntry(lVal);
 
-	auto rValNode = node->getChildren()[0];
-	auto rVal = rValNode->getLabel();
-	lValEntry->setValue(evaluate(rValNode));
+		auto rValNode = node->getChildren()[0];
+		auto rVal = rValNode->getLabel();
+		lValEntry->setValue(evaluate(rValNode));
+	} else if (parent->getLabel() == "indexStmt") {
+		auto index = evaluate(parent->getChildren()[0]);
+		auto indexNumber = *(int*)(index.get());
+
+		auto lValNode = parent->getParent()->getChildren()[0]->getChildren()[0];
+		auto lValEntry = lValNode->getSymbolEntry(lValNode->getLabel());
+		auto lValValue = (int*)(lValEntry->getValue().get());
+
+		auto rValNode = node->getChildren()[0];
+		auto rValResult = evaluate(rValNode);
+		lValValue[indexNumber] = *(int*)(rValResult.get());
+	}
+
 }
 
 void DerivationTree::processStmt()
