@@ -29,6 +29,7 @@ enum class NodeType {
 	assignStmt,
 	ifStmt,
 	elseStmt,
+	printStmt,
 	expr,
 	andExpr,
 	compExpr,

@@ -9,6 +9,7 @@
 enum LexerState {
 	START,
 	WORD,
+	QUOTED_WORD,
 	INT_NUMBER,
 	FLOAT_NUMBER
 };
@@ -16,20 +17,18 @@ enum LexerState {
 class Lexer
 {
 public:
-	Lexer();
-	Lexer(const std::shared_ptr<std::istream> &f);
+	Lexer(std::istream &stream);
 
-	void setStream(const std::shared_ptr<std::istream> &f);
 	size_t getLineNo();
 	std::string getNextAtom();
 	void ungetAtom();
 	std::string getCurrentLine();
-	bool isStreamSet();
 
 private:
 
  	bool inStartState(const char &sign, std::string &result);
 	bool inWordState(const char &sign, std::string &result);
+	bool inQuotedWordState(const char &sign, std::string &result);
 	bool inIntNumberState(const char &sign, std::string &result);
 	bool inFloatNumberState(const char &sign, std::string &result);
 
@@ -47,8 +46,9 @@ private:
 	inline bool isLogicOperator(const char &c);
 	inline bool isBracket(const char &c);
 	inline bool isComa(const char &c);
+	inline bool isQuoteSign(const char &c);
 
-	std::shared_ptr<std::istream> input;
+	std::istream &input;
 
 	size_t currentLineNo;
 	LexerState state;

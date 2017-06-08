@@ -164,6 +164,8 @@ std::string DerivationNode::nodeTypeToString(NodeType type)
 		return "ifStmt";
 	case NodeType::elseStmt:
 		return "elseStmt";
+	case NodeType::printStmt:
+		return "printStmt";
 	case NodeType::expr:
 		return "expr";
 	case NodeType::andExpr:

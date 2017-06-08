@@ -1,0 +1,9 @@
+	int main() {
+		list(int) l[10];
+		[0 for i in l];
+		int c = 5;
+		for (int a = 0; a < 10; a = a + 1;) {
+			l[a] = a;
+			println l[a];
+		}
+	}

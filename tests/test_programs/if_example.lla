@@ -1,0 +1,10 @@
+int main() {
+	int a = 7;
+	int b = 6;
+	bool greater = false;
+	if (a > b) {
+		greater = true;
+	}
+
+	println greater;
+}

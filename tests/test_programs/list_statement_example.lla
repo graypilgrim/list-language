@@ -1,0 +1,6 @@
+int main() {
+	list(int) l[10];
+	[3 for i in l];
+	[3 * i for i in l];
+	println l[3];
+}

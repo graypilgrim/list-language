@@ -1,17 +1,8 @@
 #include "Lexer.hpp"
 
-Lexer::Lexer()
-	: state(LexerState::START), ungetFlag(false)
+Lexer::Lexer(std::istream &stream)
+	: input(stream), currentLineNo(1), state(LexerState::START), ungetFlag(false)
 {}
-
-Lexer::Lexer(const std::shared_ptr<std::istream> &stream)
-	: input(stream), state(LexerState::START), ungetFlag(false)
-{}
-
-void Lexer::setStream(const std::shared_ptr<std::istream> &stream) {
-	input = stream;
-	currentLineNo = 1;
-}
 
 size_t Lexer::getLineNo() {
 	return currentLineNo;
@@ -26,7 +17,7 @@ std::string Lexer::getNextAtom() {
 	std::string result;
 	char sign;
 
-	while (*input >> std::noskipws >> sign) {
+	while (input >> std::noskipws >> sign) {
 		switch(state) {
 		case START:
 			try {
@@ -41,6 +32,16 @@ std::string Lexer::getNextAtom() {
 		case WORD:
 			try {
 				if (inWordState(sign, result))
+					return result;
+			} catch (std::domain_error &e) {
+				throw e;
+			}
+
+			break;
+
+		case QUOTED_WORD:
+			try {
+				if (inQuotedWordState(sign, result))
 					return result;
 			} catch (std::domain_error &e) {
 				throw e;
@@ -70,6 +71,9 @@ std::string Lexer::getNextAtom() {
 		}
 	}
 
+	if (state == LexerState::QUOTED_WORD)
+		throw std::domain_error("Unclosed quote");
+
 	cachedAtom = result;
 	return result;
 }
@@ -78,11 +82,13 @@ void Lexer::ungetAtom() {
 	ungetFlag = true;
 }
 
-bool Lexer::isStreamSet() {
-	return input.get() != nullptr;
-}
-
 bool Lexer::inStartState(const char &sign, std::string &result) {
+	if (isQuoteSign(sign)) {
+		state = LexerState::QUOTED_WORD;
+		result += sign;
+		return false;
+	}
+
 	if (isLetter(sign)) {
 		state = LexerState::WORD;
 		result += sign;
@@ -104,7 +110,7 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 	if (isLogicTie(sign)) {
 		char nextSign;
 
-		if (!(*input >> std::noskipws >> nextSign))
+		if (!(input >> std::noskipws >> nextSign))
 			return false;
 
 		if (nextSign == sign) {
@@ -120,7 +126,7 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 	if (isLogicOperator(sign)) {
 		char nextSign;
 
-		if (!(*input >> std::noskipws >> nextSign))
+		if (!(input >> std::noskipws >> nextSign))
 			return false;
 
 		if ((sign == '<' || sign == '>' || sign == '=') && nextSign == '='){
@@ -128,11 +134,11 @@ bool Lexer::inStartState(const char &sign, std::string &result) {
 			result += nextSign;
 			return true;
 		} else if (sign == '<' || sign == '>') {
-			input->unget();
+			input.unget();
 			result += sign;
 			return true;
 		} else if (sign == '=') {
-			input->unget();
+			input.unget();
 		}
 	}
 
@@ -152,7 +158,7 @@ bool Lexer::inWordState(const char &sign, std::string &result) {
 
 	if (isOperator(sign) || isSemicolon(sign) || isWhitespace(sign) || isBracket(sign) || isComa(sign)) {
 		state = LexerState::START;
-		input->unget();
+		input.unget();
 		return true;
 	}
 
@@ -161,6 +167,18 @@ bool Lexer::inWordState(const char &sign, std::string &result) {
 
 	return false;
 }
+
+bool Lexer::inQuotedWordState(const char &sign, std::string &result) {
+	if (isQuoteSign(sign)) {
+		result += sign;
+		state = LexerState::START;
+		return true;
+	}
+
+	result += sign;
+	return false;
+}
+
 
 bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 	if (isLetter(sign)) {
@@ -175,7 +193,7 @@ bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 
 	if (isOperator(sign) || isSemicolon(sign) || isComa(sign) || isBracket(sign)) {
 		state = LexerState::START;
-		input->unget();
+		input.unget();
 		return true;
 	}
 
@@ -189,7 +207,7 @@ bool Lexer::inIntNumberState(const char &sign, std::string &result) {
 		result += sign;
 
 		char nextSign;
-		if (!(*input >> std::noskipws >> nextSign))
+		if (!(input >> std::noskipws >> nextSign))
 			return false;
 
 		if (!isDigit(nextSign))
@@ -217,12 +235,12 @@ bool Lexer::inFloatNumberState(const char &sign, std::string &result) {
 
 	if (isOperator(sign) || isSemicolon(sign) || isComa(sign)) {
 		state = LexerState::START;
-		input->unget();
+		input.unget();
 		return true;
 	}
 
 	if (isWhitespace(sign) || isCommentSignSkipMaybe(sign)) {
-		input->unget();
+		input.unget();
 		return true;
 	}
 
@@ -238,7 +256,7 @@ bool Lexer::inFloatNumberState(const char &sign, std::string &result) {
 void Lexer::skipComment() {
 	char sign;
 
-	while (*input >> std::noskipws >> sign) {
+	while (input >> std::noskipws >> sign) {
 		if (sign == '\n')
 			return;
 	}
@@ -300,4 +318,8 @@ bool Lexer::isBracket(const char &c) {
 
 bool Lexer::isComa(const char &c) {
 	return c == ',';
+}
+
+bool Lexer::isQuoteSign(const char &c) {
+	return c == '"';
 }

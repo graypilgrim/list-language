@@ -129,6 +129,10 @@ std::shared_ptr<DerivationNode> Parser::stmt(const std::weak_ptr<DerivationNode>
 	} else if (atom == "return") {
 		node->addChild(nextAtom(node));
 		node->addChild(retStmt(node));
+	} else if (atom == "print" || atom == "println") {
+		auto label = atom;
+		node->addChild(nextAtom(node));
+		node->addChild(printStmt(node, label));
 	} else {
 		if (isAtomType())
 			node->addChild(varDecl(node));
@@ -259,8 +263,7 @@ std::shared_ptr<DerivationNode> Parser::indexStmt(const std::weak_ptr<Derivation
 	if (atom == "=") {
 		node->addChild(nextAtom(node));
 		node->addChild(assignStmt(node));
-	} else
-		node->addChild(semicolon(node));
+	}
 
 	return node;
 }
@@ -289,13 +292,12 @@ std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNo
 	if (atom == "=") {
 		node->addChild(nextAtom(node));
 		node->addChild(assignStmt(node));
-	} else if (atom == ";") {
-		node->addChild(nextAtom(node));
 	} else if (atom == "[") {
 		node->addChild(nextAtom(node));
 		node->addChild(indexStmt(node));
+		node->addChild(semicolon(node));
 	} else
-		throw std::domain_error(" Unexpected symbol at line: " + currentLine());
+		node->addChild(semicolon(node));
 
 	return node;
 }
@@ -392,6 +394,20 @@ std::shared_ptr<DerivationNode> Parser::elseStmt(const std::weak_ptr<DerivationN
 		node->addChild(nextAtom(node));
 		node->addChild(condStmt(node));
 	}
+
+	return node;
+}
+
+std::shared_ptr<DerivationNode> Parser::printStmt(const std::weak_ptr<DerivationNode> &parent, const std::string &label) {
+	auto node = std::make_shared<DerivationNode>(NodeType::printStmt, parent);
+	node->setLabel(label);
+
+	if (atom.size() > 0 && atom[0] == '"')
+		node->addChild(nextAtom(node));
+	else
+		node->addChild(val(node));
+
+	node->addChild(semicolon(node));
 
 	return node;
 }

@@ -257,8 +257,10 @@ void DerivationTree::processStmt()
 		processFor();
 	else if (type == NodeType::listStmt)
 		processListStmt();
-	else if(type == NodeType::indexStmt)
+	else if (type == NodeType::indexStmt)
 		processIndexStmt();
+	else if (type == NodeType::printStmt)
+		processPrintStmt();
 }
 
 void DerivationTree::processIf()
@@ -359,12 +361,37 @@ void DerivationTree::processIndexStmt()
 	}
 }
 
+void DerivationTree::processPrintStmt()
+{
+	if (current->getChildren()[0]->getType() == NodeType::symbol) {
+		std::cout << current->getChildren()[0]->getLabel();
+	} else {
+		auto result = evaluate(current->getChildren()[0]);
+		std::cout << *(int*)(result.get());
+	}
+
+	if (current->getParent()->getChildren()[0]->getLabel() == "println")
+		std::cout << std::endl;
+
+	while (current->getLabel() != ";")
+		nextNode();
+}
+
 std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationNode> &node)
 {
 	if (node->getType() == NodeType::val) {
 		if (node->getChildren()[0]->getType() == NodeType::identifier) {
 			auto id = node->getChildren()[0]->getChildren()[0];
 			auto entry = id->getSymbolEntry(id->getLabel());
+
+			if (node->getChildren().size() > 1) {
+				auto index = evaluate(node->getChildren()[2]->getChildren()[0]);
+				auto indexNumber = *(int*)(index.get());
+				auto val = (int*)(entry->getValue().get());
+
+				return std::shared_ptr<void>(new int(val[indexNumber]));
+			}
+
 			auto val = entry->getValue();
 			return std::shared_ptr<void>(new int(*(int*)(val.get())));
 		} else {

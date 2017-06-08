@@ -20,7 +20,7 @@ PROD_SOURCES = \
 
 PROD_OBJECTS=$(PROD_SOURCES:.cpp=.o)
 
-$(BINARY): $(OBJECTS)
+$(BINARY): $(PROD_OBJECTS)
 	$(CXX) $^ -o $@
 
 
@@ -36,7 +36,7 @@ TEST_OBJECTS=$(TESTS_SOURCES:.cpp=.o)
 $(TESTS_BINARY): $(TEST_OBJECTS)
 	$(CXX) $^ -o $@
 
-all : tests
+all : prod tests
 
 tests : $(TESTS_BINARY)
 	./$(TESTS_BINARY)

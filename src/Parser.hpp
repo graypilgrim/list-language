@@ -43,6 +43,7 @@ private:
 	std::shared_ptr<DerivationNode> assignStmt(const std::weak_ptr<DerivationNode> &parent);
 	std::shared_ptr<DerivationNode> ifStmt(const std::weak_ptr<DerivationNode> &parent);
 	std::shared_ptr<DerivationNode> elseStmt(const std::weak_ptr<DerivationNode> &parent);
+	std::shared_ptr<DerivationNode> printStmt(const std::weak_ptr<DerivationNode> &parent, const std::string &label);
 	std::shared_ptr<DerivationNode> expr(const std::weak_ptr<DerivationNode> &parent);
 	std::shared_ptr<DerivationNode> andExpr(const std::weak_ptr<DerivationNode> &parent);
 	std::shared_ptr<DerivationNode> compExpr(const std::weak_ptr<DerivationNode> &parent);
