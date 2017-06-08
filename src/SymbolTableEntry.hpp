@@ -1,22 +1,10 @@
 #ifndef SYMBOL_TABLE_ENTRY_HPP
 #define SYMBOL_TABLE_ENTRY_HPP
 
+#include "Value.hpp"
+
 #include <memory>
 #include <string>
-
-enum class Type
-{
-	INT,
-	FLOAT,
-	BOOL,
-	INT_LIST,
-	FLOAT_LIST,
-	BOOL_LIST,
-	VOID_FUNCTION,
-	INT_FUNCTION,
-	FLOAT_FUNCTION,
-	BOOL_FUNCTION,
-};
 
 class SymbolTableEntry
 {
@@ -24,15 +12,10 @@ public:
 	SymbolTableEntry();
 
 	bool isFunction();
+	bool isList();
 
-	void setIdentifier(const std::string &identifier);
-	std::string getIdentifier();
-
-	void setType(Type type);
-	Type getType();
-
-	void setValue(const std::shared_ptr<void> &value);
-	std::shared_ptr<void> getValue();
+	void setValue(const std::shared_ptr<Value> &value);
+	std::shared_ptr<Value> getValue();
 
 	void setFuncArgsNo(size_t number);
 	size_t getFuncArgsNo();
@@ -43,9 +26,11 @@ public:
 	static std::string typeToString(Type type);
 
 private:
-	std::string identifier;
 	Type type;
-	std::shared_ptr<void> value;
+	// std::shared_ptr<void> value;
+	bool function;
+	bool list;
+	std::shared_ptr<Value> value;
 	size_t funcArgsNo;
 	size_t listSize;
 };

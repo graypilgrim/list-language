@@ -31,7 +31,12 @@ private:
 	void processListStmt();
 	void processIndexStmt();
 	void processPrintStmt();
-	std::shared_ptr<void> evaluate(const std::shared_ptr<DerivationNode> &node);
+	std::shared_ptr<Value> evaluate(const std::shared_ptr<DerivationNode> &node);
+	std::shared_ptr<Value> evaluateVal(const std::shared_ptr<DerivationNode> &node);
+	std::shared_ptr<Value> evaluateMul(const std::shared_ptr<DerivationNode> &node);
+	std::shared_ptr<Value> evaluateSum(const std::shared_ptr<DerivationNode> &node);
+	std::shared_ptr<Value> evaluateComp(const std::shared_ptr<DerivationNode> &node);
+	std::shared_ptr<Value> evaluateAnd(const std::shared_ptr<DerivationNode> &node);
 
 	std::shared_ptr<DerivationTree> tree;
 	std::shared_ptr<DerivationNode> current;

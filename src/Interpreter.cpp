@@ -94,7 +94,7 @@ void Interpreter::setType(const std::shared_ptr<DerivationNode> &node, const std
 		typeNode = typeNode->getParent()->getChildren()[2]->getChildren()[0];
 	}
 
-	entry->setType(deduceType(list, function, typeNode->getLabel()));
+	entry->getValue()->setType(deduceType(list, function, typeNode->getLabel()));
 }
 
 void Interpreter::setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
@@ -116,27 +116,6 @@ void Interpreter::setArgsNo(const std::shared_ptr<DerivationNode> &node, const s
 
 Type Interpreter::deduceType(bool isList, bool isFunction, const std::string &type)
 {
-	if (type == "int" && isList)
-		return Type::INT_LIST;
-
-	if (type == "float" && isList)
-		return Type::FLOAT_LIST;
-
-	if (type == "bool" && isList)
-		return Type::BOOL_LIST;
-
-	if (type == "int" && isFunction)
-		return Type::INT_FUNCTION;
-
-	if (type == "float" && isFunction)
-		return Type::FLOAT_FUNCTION;
-
-	if (type == "bool" && isFunction)
-		return Type::BOOL_FUNCTION;
-
-	if (type == "void" && isFunction)
-		return Type::VOID_FUNCTION;
-
 	if (type == "int")
 		return Type::INT;
 
@@ -347,88 +326,146 @@ void Interpreter::processPrintStmt()
 		nextNode();
 }
 
-std::shared_ptr<void> Interpreter::evaluate(const std::shared_ptr<DerivationNode> &node)
+std::shared_ptr<Value> Interpreter::evaluate(const std::shared_ptr<DerivationNode> &node)
 {
-	if (node->getType() == NodeType::val) {
-		if (node->getChildren()[0]->getType() == NodeType::identifier) {
-			auto id = node->getChildren()[0]->getChildren()[0];
-			auto entry = id->getSymbolEntry(id->getLabel());
+	if (node->getType() == NodeType::val)
+		return evaluateVal(node);
 
-			if (node->getChildren().size() > 1) {
-				auto index = evaluate(node->getChildren()[2]->getChildren()[0]);
-				auto indexNumber = *(int*)(index.get());
-				auto val = (int*)(entry->getValue().get());
+	if (node->getType() == NodeType::mulExpr)
+		return evaluateMul(node);
 
-				return std::shared_ptr<void>(new int(val[indexNumber]));
-			}
+	if (node->getType() == NodeType::sumExpr)
+		return evaluateSum(node);
 
-			auto val = entry->getValue();
-			return std::shared_ptr<void>(new int(*(int*)(val.get())));
-		} else {
-			auto val = node->getChildren()[0]->getLabel();
-			if (val == "true")
-				val = "1";
-			else if (val == "false")
-				val = "0";
-			return std::shared_ptr<void>(new int(std::stoi(val)));
-		}
-	}
+	if (node->getType() == NodeType::compExpr)
+		return evaluateComp(node);
 
-	if (node->getType() == NodeType::mulExpr) {
-		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
 
-		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
-			if (node->getChildren()[i]->getLabel() == "*")
-				*(int*)(result.get()) *= *(int*)(evaluate(node->getChildren()[i+1]).get());
-			if (node->getChildren()[i]->getLabel() == "/")
-				*(int*)(result.get()) /= *(int*)(evaluate(node->getChildren()[i+1]).get());
-		}
+	if (node->getType() == NodeType::andExpr)
+		return evaluateAnd(node);
 
-		return result;
-	}
-
-	if (node->getType() == NodeType::sumExpr) {
-		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
-
-		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
-			if (node->getChildren()[i]->getLabel() == "+")
-				*(int*)(result.get()) += *(int*)(evaluate(node->getChildren()[i+1]).get());
-			if (node->getChildren()[i]->getLabel() == "-")
-				*(int*)(result.get()) -= *(int*)(evaluate(node->getChildren()[i+1]).get());
-		}
-
-		return result;
-	}
-
-	if (node->getType() == NodeType::compExpr) {
-		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
-
-		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
-			if (node->getChildren()[i]->getLabel() == "<")
-				*(int*)(result.get()) = *(int*)(result.get()) < *(int*)(evaluate(node->getChildren()[i+1]).get());
-			if (node->getChildren()[i]->getLabel() == ">")
-				*(int*)(result.get()) = *(int*)(result.get()) > *(int*)(evaluate(node->getChildren()[i+1]).get());
-			if (node->getChildren()[i]->getLabel() == "==")
-				*(int*)(result.get()) = *(int*)(result.get()) == *(int*)(evaluate(node->getChildren()[i+1]).get());
-		}
-
-		return result;
-	}
-
-	if (node->getType() == NodeType::andExpr) {
-		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
-
-		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
-				*(int*)(result.get()) = *(int*)(result.get()) && *(int*)(evaluate(node->getChildren()[i+1]).get());
-		}
-
-		return result;
-	}
-
-	std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
+	auto result = evaluate(node->getChildren()[0]);
 
 	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
-			*(int*)(result.get()) = *(int*)(result.get()) || *(int*)(evaluate(node->getChildren()[i+1]).get());
+		auto nextItem = evaluateVal(node->getChildren()[i+1]);
+
+		result = result || nextItem;
+	}
+
+	return result;
+}
+
+std::shared_ptr<Value> Interpreter::evaluateVal(const std::shared_ptr<DerivationNode> &node)
+{
+	if (node->getChildren()[0]->getType() == NodeType::identifier) {
+		auto id = node->getChildren()[0]->getChildren()[0];
+		auto entry = id->getSymbolEntry(id->getLabel());
+
+		if (node->getChildren().size() == 1)
+			return entry->getValue();
+
+		auto index = evaluate(node->getChildren()[2]->getChildren()[0]);
+		if (index->getType() != Type::INT)
+			throw std::runtime_error("Invalid index type");
+
+		auto indexNumber = *(index->getInt().get());
+		auto valType = entry->getValue()->getType();
+		auto result = std::make_shared<Value>(valType);
+
+		switch (valType) {
+		case Type::INT: {
+			auto intVal = entry->getValue()->getInt().get();
+			result->setInt(std::make_shared<int>(intVal[indexNumber]));
+			return result;
+		}
+
+		case Type::FLOAT: {
+			auto floatVal = entry->getValue()->getFloat().get();
+			result->setFloat(std::make_shared<float>(floatVal[indexNumber]));
+			return result;
+		}
+
+		case Type::BOOL: {
+			auto boolVal = entry->getValue()->getBool().get();
+			result->setBool(std::make_shared<bool>(boolVal[indexNumber]));
+			return result;
+		}
+		}
+
+	} else {
+		auto val = node->getChildren()[0]->getLabel();
+		auto result = std::make_shared<Value>(Type::BOOL);
+
+		if (val == "true")
+			result->setBool(std::make_shared<bool>(new bool(true)));
+		else if (val == "false")
+			result->setBool(std::make_shared<bool>(new bool(false)));
+
+		return result;
+	}
+
+	return std::make_shared<Value>(Type::INT);
+}
+
+std::shared_ptr<Value> Interpreter::evaluateMul(const std::shared_ptr<DerivationNode> &node)
+{
+	auto result = evaluateVal(node->getChildren()[0]);
+
+
+	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
+		auto nextItem = evaluateVal(node->getChildren()[i+1]);
+
+		if (node->getChildren()[i]->getLabel() == "*")
+			*result *= *nextItem;
+		if (node->getChildren()[i]->getLabel() == "/")
+			*result /= *nextItem;
+	}
+
+	return result;
+}
+
+std::shared_ptr<Value> Interpreter::evaluateSum(const std::shared_ptr<DerivationNode> &node)
+{
+	auto result = evaluateMul(node->getChildren()[0]);
+
+	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
+		auto nextItem = evaluateMul(node->getChildren()[i+1]);
+
+		if (node->getChildren()[i]->getLabel() == "+")
+			*result += *nextItem;
+		if (node->getChildren()[i]->getLabel() == "-")
+			*result -= *nextItem;
+	}
+
+	return result;
+}
+
+std::shared_ptr<Value> Interpreter::evaluateComp(const std::shared_ptr<DerivationNode> &node)
+{
+	auto result = evaluateSum(node->getChildren()[0]);
+
+	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
+		auto nextItem = evaluateSum(node->getChildren()[i+1]);
+
+		if (node->getChildren()[i]->getLabel() == "<")
+			result = result < nextItem;
+		if (node->getChildren()[i]->getLabel() == ">")
+			result = result > nextItem;
+		if (node->getChildren()[i]->getLabel() == "==")
+			result = result == nextItem;
+	}
+
+	return result;
+}
+
+std::shared_ptr<Value> Interpreter::evaluateAnd(const std::shared_ptr<DerivationNode> &node)
+{
+	auto result = evaluateComp(node->getChildren()[0]);
+
+	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
+		auto nextItem = evaluateComp(node->getChildren()[i+1]);
+
+		result = result && nextItem;
 	}
 
 	return result;
