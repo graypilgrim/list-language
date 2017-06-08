@@ -54,7 +54,11 @@ void DerivationTree::printTree()
 		for (size_t i = 0 ; i < node->getDepth(); ++i)
 			std::cout << "-";
 		std::cout << "|";
-		std::cout << node->getLabel() << std::endl;
+		if (node->getType() == NodeType::symbol)
+			std::cout << node->getLabel();
+		else
+			std::cout << DerivationNode::nodeTypeToString(node->getType());
+		std::cout << std::endl;
 
 		auto children = node->getChildren();
 
@@ -112,7 +116,7 @@ void DerivationTree::setType(const std::shared_ptr<DerivationNode> &node, const 
 	bool function = false;
 	auto grandParent = node->getParent()->getParent();
 
-	if (grandParent->getLabel() == "funDecl")
+	if (grandParent->getType() == NodeType::funDecl)
 		function = true;
 
 	auto typeNode = grandParent->getChildren()[0]->getChildren()[0];
@@ -131,7 +135,7 @@ void DerivationTree::setArgsNo(const std::shared_ptr<DerivationNode> &node, cons
 	auto argNode = node->getParent()->getParent();
 
 	for (size_t i = 0; i < argNode->getChildren().size(); ++i) {
-		if (argNode->getChildren()[i]->getLabel() == "args") {
+		if (argNode->getChildren()[i]->getType() == NodeType::args) {
 			argNode = argNode->getChildren()[i];
 			i = 0;
 			++counter;
@@ -218,7 +222,7 @@ void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 	auto indexInParent = node->findIndexInParent();
 	auto parent = node->getParent();
 
-	if (parent->getLabel() == "varDecl" || parent->getLabel() == "stmt") {
+	if (parent->getType() == NodeType::varDecl || parent->getType() == NodeType::stmt) {
 		auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
 		auto lVal = lValNode->getLabel();
 		auto lValEntry = lValNode->getSymbolEntry(lVal);
@@ -226,7 +230,7 @@ void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 		auto rValNode = node->getChildren()[0];
 		auto rVal = rValNode->getLabel();
 		lValEntry->setValue(evaluate(rValNode));
-	} else if (parent->getLabel() == "indexStmt") {
+	} else if (parent->getType() == NodeType::indexStmt) {
 		auto index = evaluate(parent->getChildren()[0]);
 		auto indexNumber = *(int*)(index.get());
 
@@ -243,17 +247,17 @@ void DerivationTree::assignValue(const std::shared_ptr<DerivationNode> &n)
 
 void DerivationTree::processStmt()
 {
-	auto label = current->getLabel();
+	auto type = current->getType();
 
-	if (label == "varDef" || label == "assignStmt")
+	if (type == NodeType::varDef || type == NodeType::assignStmt)
 		assignValue();
-	else if (label == "condStmt")
+	else if (type == NodeType::condStmt)
 		processIf();
-	else if (label == "forStmt")
+	else if (type == NodeType::forStmt)
 		processFor();
-	else if (label == "listStmt")
+	else if (type == NodeType::listStmt)
 		processListStmt();
-	else if(label == "indexStmt")
+	else if(type == NodeType::indexStmt)
 		processIndexStmt();
 }
 
@@ -276,7 +280,7 @@ void DerivationTree::processFor()
 	auto loopBodyNode = current->getChildren()[6];
 	auto endSign = loopBodyNode->getChildren().size() == 1 ? ";" : "}";
 
-	while (current->getLabel() != "assignStmt")
+	while (current->getType() != NodeType::assignStmt)
 		nextNode();
 	assignValue();
 
@@ -286,7 +290,7 @@ void DerivationTree::processFor()
 
 	auto condNode = current;
 
-	while (current->getLabel() != "assignStmt")
+	while (current->getType() != NodeType::assignStmt)
 		nextNode();
 
 	auto iteratorChangeNode = current;
@@ -337,11 +341,11 @@ void DerivationTree::processListStmt()
 
 void DerivationTree::processIndexStmt()
 {
-	if (current->getParent()->getLabel() == "varDecl") {
+	if (current->getParent()->getType() == NodeType::varDecl) {
 		auto siblings = current->getParent()->getChildren();
 		std::string id;
 		for (auto &n : siblings)
-			if (n->getLabel() == "identifier") {
+			if (n->getType() == NodeType::identifier) {
 				id = n->getChildren()[0]->getLabel();
 				break;
 			}
@@ -357,8 +361,8 @@ void DerivationTree::processIndexStmt()
 
 std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationNode> &node)
 {
-	if (node->getLabel() == "val") {
-		if (node->getChildren()[0]->getLabel() == "identifier") {
+	if (node->getType() == NodeType::val) {
+		if (node->getChildren()[0]->getType() == NodeType::identifier) {
 			auto id = node->getChildren()[0]->getChildren()[0];
 			auto entry = id->getSymbolEntry(id->getLabel());
 			auto val = entry->getValue();
@@ -373,7 +377,7 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 		}
 	}
 
-	if (node->getLabel() == "mulExpr") {
+	if (node->getType() == NodeType::mulExpr) {
 		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
 
 		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
@@ -386,7 +390,7 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 		return result;
 	}
 
-	if (node->getLabel() == "sumExpr") {
+	if (node->getType() == NodeType::sumExpr) {
 		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
 
 		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
@@ -399,7 +403,7 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 		return result;
 	}
 
-	if (node->getLabel() == "comExpr") {
+	if (node->getType() == NodeType::compExpr) {
 		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
 
 		for (size_t i = 1; i < node->getChildren().size(); i+=2) {
@@ -414,7 +418,7 @@ std::shared_ptr<void> DerivationTree::evaluate(const std::shared_ptr<DerivationN
 		return result;
 	}
 
-	if (node->getLabel() == "andExpr") {
+	if (node->getType() == NodeType::andExpr) {
 		std::shared_ptr<void> result = evaluate(node->getChildren()[0]);
 
 		for (size_t i = 1; i < node->getChildren().size(); i+=2) {

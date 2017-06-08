@@ -7,14 +7,50 @@
 #include <memory>
 #include <unordered_map>
 
+enum class NodeType {
+	program,
+	funDef,
+	funDecls,
+	funDecl,
+	args,
+	stmts,
+	stmt,
+	condStmt,
+	whileStmt,
+	forStmt,
+	callStmt,
+	indexStmt,
+	varDef,
+	varDecl,
+	listStmt,
+	basicListIter,
+	listIfStmt,
+	retStmt,
+	assignStmt,
+	ifStmt,
+	elseStmt,
+	expr,
+	andExpr,
+	compExpr,
+	sumExpr,
+	mulExpr,
+	val,
+	type,
+	identifier,
+	semicolon,
+	symbol
+};
+
 class SymbolTable;
 class DerivationNode
 {
 public:
-	DerivationNode(const std::string &label);
-	DerivationNode(const std::string &label, const std::weak_ptr<DerivationNode> &parent);
+	DerivationNode(NodeType type);
+	DerivationNode(NodeType type, const std::weak_ptr<DerivationNode> &parent);
 
+	NodeType getType();
 	std::string getLabel() const;
+	void setLabel(const std::string &label);
 	size_t getDepth() const;
 	bool wasVisited();
 	void setVisited();
@@ -30,9 +66,12 @@ public:
 
 	size_t findIndexInParent();
 
+	static std::string nodeTypeToString(NodeType type);
+
 private:
 	static size_t index;
 
+	NodeType type;
 	std::string label;
 	size_t depth;
 	bool visited;

@@ -1,7 +1,7 @@
 #include "Parser.hpp"
 
 Parser::Parser()
-	: keywords({"if", "else", "while", "for", "in", "return", "true", "false", "int", "float", "bool", "void"}),
+	: keywords({"if", "else", "while", "for", "in", "return", "true", "false", "int", "float", "bool", "void", "print", "println"}),
 	types({"list", "int", "float", "bool", "void"})
 {}
 
@@ -12,7 +12,7 @@ Parser::Parser(const std::shared_ptr<Lexer> &lexer)
 {}
 
 std::shared_ptr<DerivationTree> Parser::run() {
-	auto root = std::make_shared<DerivationNode>("program");
+	auto root = std::make_shared<DerivationNode>(NodeType::program);
 	tree = std::make_shared<DerivationTree>(root);
 	tree->pushTable(root->createScope());
 	nextAtom(root);
@@ -24,7 +24,8 @@ std::shared_ptr<DerivationTree> Parser::run() {
 }
 
 std::shared_ptr<DerivationNode> Parser::nextAtom(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>(atom, parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::symbol, parent);
+	node->setLabel(atom);
 	atom = lexer->getNextAtom();
 	return node;
 }
@@ -34,14 +35,14 @@ std::string Parser::currentLine() {
 }
 
 std::shared_ptr<DerivationNode> Parser::funDef(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("funDef", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::funDef, parent);
 	node->addChild(stmts(node));
 
 	return node;
 }
 
 std::shared_ptr<DerivationNode> Parser::funsDecls(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("funDecls", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::funDecls, parent);
 	while (atom != "")
 		node->addChild(funDecl(node));
 
@@ -49,7 +50,7 @@ std::shared_ptr<DerivationNode> Parser::funsDecls(const std::weak_ptr<Derivation
 }
 
 std::shared_ptr<DerivationNode> Parser::funDecl(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("funDecl", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::funDecl, parent);
 	node->addChild(type(node));
 	node->addChild(identifier(node));
 
@@ -77,7 +78,7 @@ std::shared_ptr<DerivationNode> Parser::funDecl(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::args(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("args", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::args, parent);
 	node->addChild(type(node));
 	node->addChild(identifier(node));
 
@@ -94,7 +95,7 @@ std::shared_ptr<DerivationNode> Parser::args(const std::weak_ptr<DerivationNode>
 
 std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode> &parent) {
 	// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
-	auto node = std::make_shared<DerivationNode>("stmts", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::stmts, parent);
 	if (atom == "{"){
 		node->addChild(nextAtom(node));
 		tree->pushTable(node->createScope());
@@ -111,7 +112,7 @@ std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode
 }
 
 std::shared_ptr<DerivationNode> Parser::stmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("stmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::stmt, parent);
 
 	if (atom == "if") {
 		node->addChild(nextAtom(node));
@@ -152,7 +153,7 @@ std::shared_ptr<DerivationNode> Parser::stmt(const std::weak_ptr<DerivationNode>
 }
 
 std::shared_ptr<DerivationNode> Parser::condStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("condStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::condStmt, parent);
 
 	node->addChild(ifStmt(node));
 	node->addChild(stmts(node));
@@ -167,7 +168,7 @@ std::shared_ptr<DerivationNode> Parser::condStmt(const std::weak_ptr<DerivationN
 }
 
 std::shared_ptr<DerivationNode> Parser::whileStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("whileStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::whileStmt, parent);
 
 	if (atom != "(")
 		throw std::domain_error(" Paranthesis expected at line " + currentLine());
@@ -185,7 +186,7 @@ std::shared_ptr<DerivationNode> Parser::whileStmt(const std::weak_ptr<Derivation
 }
 
 std::shared_ptr<DerivationNode> Parser::forStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("forStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::forStmt, parent);
 	tree->pushTable(node->createScope());
 
 	if (atom != "(")
@@ -222,7 +223,7 @@ std::shared_ptr<DerivationNode> Parser::forStmt(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::callStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("callStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::callStmt, parent);
 
 	if (atom == ")") {
 		node->addChild(nextAtom(node));
@@ -247,7 +248,7 @@ std::shared_ptr<DerivationNode> Parser::callStmt(const std::weak_ptr<DerivationN
 }
 
 std::shared_ptr<DerivationNode> Parser::indexStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("indexStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::indexStmt, parent);
 
 	node->addChild(expr(node));
 	if (atom != "]")
@@ -265,7 +266,7 @@ std::shared_ptr<DerivationNode> Parser::indexStmt(const std::weak_ptr<Derivation
 }
 
 std::shared_ptr<DerivationNode> Parser::varDef(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("varDef", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::varDef, parent);
 
 	if (isAtomNumber()) {
 		node->addChild(nextAtom(node));
@@ -280,7 +281,7 @@ std::shared_ptr<DerivationNode> Parser::varDef(const std::weak_ptr<DerivationNod
 }
 
 std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("varDecl", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::varDecl, parent);
 
 	node->addChild(type(node));
 	node->addChild(identifier(node));
@@ -300,7 +301,7 @@ std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::listStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("listStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::listStmt, parent);
 
 	node->addChild(basicListIter(node));
 
@@ -319,7 +320,7 @@ std::shared_ptr<DerivationNode> Parser::listStmt(const std::weak_ptr<DerivationN
 }
 
 std::shared_ptr<DerivationNode> Parser::basicListIter(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("basicListIter", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::basicListIter, parent);
 
 	node->addChild(expr(node));
 	if (atom != "for")
@@ -338,14 +339,14 @@ std::shared_ptr<DerivationNode> Parser::basicListIter(const std::weak_ptr<Deriva
 }
 
 std::shared_ptr<DerivationNode> Parser::listIfStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("funDecl", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::funDecl, parent);
 	node->addChild(ifStmt(node));
 
 	return node;
 }
 
 std::shared_ptr<DerivationNode> Parser::retStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("funDecl", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::funDecl, parent);
 	node->addChild(expr(node));
 	node->addChild(semicolon(node));
 
@@ -353,7 +354,7 @@ std::shared_ptr<DerivationNode> Parser::retStmt(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::assignStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("assignStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::assignStmt, parent);
 
 	if (atom == "["){
 		node->addChild(nextAtom(node));
@@ -369,7 +370,7 @@ std::shared_ptr<DerivationNode> Parser::assignStmt(const std::weak_ptr<Derivatio
 }
 
 std::shared_ptr<DerivationNode> Parser::ifStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("ifStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::ifStmt, parent);
 
 	if (atom != "(")
 		throw std::domain_error(" Opening paranthesis expected at line: " + currentLine());
@@ -385,7 +386,7 @@ std::shared_ptr<DerivationNode> Parser::ifStmt(const std::weak_ptr<DerivationNod
 }
 
 std::shared_ptr<DerivationNode> Parser::elseStmt(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("elseStmt", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::elseStmt, parent);
 
 	if (atom == "if") {
 		node->addChild(nextAtom(node));
@@ -396,7 +397,7 @@ std::shared_ptr<DerivationNode> Parser::elseStmt(const std::weak_ptr<DerivationN
 }
 
 std::shared_ptr<DerivationNode> Parser::expr(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("expr", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::expr, parent);
 
 	node->addChild(andExpr(node));
 	while (atom == "||") {
@@ -408,7 +409,7 @@ std::shared_ptr<DerivationNode> Parser::expr(const std::weak_ptr<DerivationNode>
 }
 
 std::shared_ptr<DerivationNode> Parser::andExpr(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("andExpr", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::andExpr, parent);
 
 	node->addChild(compExpr(node));
 	while (atom == "&&") {
@@ -420,7 +421,7 @@ std::shared_ptr<DerivationNode> Parser::andExpr(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::compExpr(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("comExpr", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::compExpr, parent);
 
 	node->addChild(sumExpr(node));
 	while (isAtomCompOperator()) {
@@ -432,7 +433,7 @@ std::shared_ptr<DerivationNode> Parser::compExpr(const std::weak_ptr<DerivationN
 }
 
 std::shared_ptr<DerivationNode> Parser::sumExpr(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("sumExpr", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::sumExpr, parent);
 
 	node->addChild(mulExpr(node));
 	while (isAtomSumOperator()) {
@@ -444,7 +445,7 @@ std::shared_ptr<DerivationNode> Parser::sumExpr(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::mulExpr(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("mulExpr", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::mulExpr, parent);
 
 	node->addChild(val(node));
 	while (isAtomMulOperator()) {
@@ -456,7 +457,7 @@ std::shared_ptr<DerivationNode> Parser::mulExpr(const std::weak_ptr<DerivationNo
 }
 
 std::shared_ptr<DerivationNode> Parser::val(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("val", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::val, parent);
 
 	if (isAtomNumber() || isAtomBoolVal()) {
 		node->addChild(nextAtom(node));
@@ -475,7 +476,7 @@ std::shared_ptr<DerivationNode> Parser::val(const std::weak_ptr<DerivationNode> 
 }
 
 std::shared_ptr<DerivationNode> Parser::type(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("type", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::type, parent);
 
 	auto t = types.find(atom);
 
@@ -498,7 +499,7 @@ std::shared_ptr<DerivationNode> Parser::type(const std::weak_ptr<DerivationNode>
 }
 
 std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("identifier", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::identifier, parent);
 
 	auto t = types.find(atom);
 	auto keyword = keywords.find(atom);
@@ -506,9 +507,9 @@ std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<Derivatio
 		throw std::domain_error(" Identifier expected at line: " + currentLine());
 
 
-	if (node->getParent()->getChildren().size() > 0 && node->getParent()->getChildren()[0]->getLabel() == "type") {
-		auto label = atom;
+	if (node->getParent()->getChildren().size() > 0 && node->getParent()->getChildren()[0]->getType() == NodeType::type) {
 		auto idNode = nextAtom(node);
+		auto label = idNode->getLabel();
 		auto table = node->getSymbolTable();
 		auto entry = std::make_shared<SymbolTableEntry>();
 		table->addEntry(label, entry, idNode);
@@ -520,7 +521,7 @@ std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<Derivatio
 }
 
 std::shared_ptr<DerivationNode> Parser::semicolon(const std::weak_ptr<DerivationNode> &parent) {
-	auto node = std::make_shared<DerivationNode>("semicolon", parent);
+	auto node = std::make_shared<DerivationNode>(NodeType::semicolon, parent);
 
 	if (atom != ";")
 		throw std::domain_error(" Semicolon expected at line: " + currentLine());

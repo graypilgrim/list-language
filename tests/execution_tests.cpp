@@ -21,6 +21,7 @@ TEST_CASE( "Execution: mocked stream") {
 		lexer->setStream(exampleStream);
 
 		auto tree = parser->run();
+		// tree->printTree();
 		tree->execute();
 		std::cout << "#1 Simple sum statement" << std::endl;
 		tree->printSymbolTables();
@@ -103,6 +104,7 @@ TEST_CASE( "Execution: mocked stream") {
 		"	for (int a = 0; a < 10; a = a + 1;) {\n"
 		"		l[a] = a;"
 		"	}\n"
+		// "	print l[0];"
 		"}";
 
 		std::string exText(program);
