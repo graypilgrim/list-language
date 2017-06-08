@@ -1,0 +1,175 @@
+\documentclass{article}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage[top=3cm, bottom=3cm, left=3cm, right=3cm]{geometry}
+\usepackage{secdot}
+\sectiondot{subsection}
+\usepackage{scrextend}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{ltablex}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{parskip}
+\addtokomafont{labelinglabel}{\sffamily}
+\usepackage{color}
+\definecolor{light-gray}{gray}{0.95}
+\newcommand{\keyword}[1]{\colorbox{light-gray}{\texttt{#1}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\usepackage{textcomp}
+
+\title{\vspace{7cm}\LARGE Techniki kompilacji\\semestr 17L\\Język do operacji na listach}
+\author{\LargeŁukasz Wlazły\\nr albumu: 269365}
+\date{}
+
+\begin{document}
+\maketitle
+\pagenumbering{gobble}
+\newpage
+\pagenumbering{arabic}
+
+\section{Gramatyka}
+
+\subsection{Założenia}
+\begin{enumerate}
+\item Język będzie posiadał statyczne typowanie.
+\item Język będzie obsługiwał typy liczbowe (int oraz float), typ logiczny (bool) oraz brak typu zwracanego dla funkcji (void).
+\item Typy proste będą przekazywane do funkcji przez wartość, listy natomiast będą przekazywane przez referencję.
+\item Nie będzie możliwe zagnieżdżanie deklaracji funkcji, deklaracja może odbywać się tylko w zasięgu globalnym.
+\item Program rozpoczyna się od funkcji \code{main} o typie \keyword{bool}.
+\item Komentarzem będą wszystkie znaki w danej linii, które zaczynają się od znaku \keyword{@}
+\end{enumerate}
+
+\subsection{Słowa kluczowe}
+\keyword{list}, \keyword{if}, \keyword{else}, \keyword{while}, \keyword{for}, \keyword{in}, \keyword{return}\\
+\keyword{true}, \keyword{false}, \\
+\keyword{(}, \keyword{)}, \keyword{[}, \keyword{]}, \keyword{\{}, \keyword{\}}, \\
+\keyword{=}, \keyword{+}, \keyword{-}, \keyword{*}, \keyword{/} \\
+\keyword{==}, \keyword{!=}, \keyword{<=}, \keyword{>=}, \\
+\keyword{\&\&}, \keyword{||}, \\
+\keyword{;}
+
+\subsection{Konstrukcje gramatyczne}
+\code{program} \textrightarrow \code{funsDefs | funsDecls} \\
+\code{funsDefs} \textrightarrow \code{funDef | funDef funsDefs} \\
+\code{funDef} \textrightarrow \code{type identifier\{ stmts \} | type identifier\{ stmts retStmt \}} \\
+\code{funsDecls} \textrightarrow \code{funDecl | funsDecls} \\
+\code{funDecl} \textrightarrow \code{type identifier( args ) \keyword{;}} \\
+\code{args} \textrightarrow \code{varDecl | varDecl, args} \\
+\code{stmts} \textrightarrow \code{stmt | stmt\keyword{;} | \keyword{\{} stmts \keyword{\}} | stmt\keyword{;} stmts} \\
+\code{stmt} \textrightarrow \code{condStmt | loopStmt | callStmt | indexStmt | varDef | varDecl | listStmt | retStmt | assignStmt} \\
+
+\code{condStmt} \textrightarrow \code{ifStmt | ifStmt elseStmt} \\
+\code{ifStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)} stmts } \\
+\code{elseStmt} \textrightarrow \code{\keyword{else} stmts} \\
+\code{retStmt} \textrightarrow \code{\keyword{return} val} \\
+\code{callStmt} \textrightarrow \code{identifier\keyword{(}vals\keyword{)}} \\
+
+\code{loopStmt} \textrightarrow \code{whileStmt | forStmt} \\
+\code{whileStmt} \textrightarrow \code{\keyword{while (} expr \keyword{)} stmts} \\
+\code{forStmt} \textrightarrow \code{\keyword{for (} \{varDef | $\epsilon$\} \keyword{;} \{expr | $\epsilon$\} \keyword{;} \{expr | $\epsilon$\} \keyword{;)} stmts}
+
+\code{listStmt} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter listIfStmt \keyword{]} } \\
+\code{listIfStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)}} \\
+\code{basicListIter} \textrightarrow \code{ stmt \keyword{for} identifier \keyword{in} identifier} \\
+
+\code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
+\code{varDecl} \textrightarrow \code{type identifier} \\
+\code{listDecl} \textrightarrow \code{\keyword{list(}type\keyword{)} identifier} \\
+\code{vals} \textrightarrow \code{val | val, vals } \\
+\code{val} \textrightarrow \code{lVal | rVal} \\
+\code{lVal} \textrightarrow \code{identifier | indexStmt} \\
+\code{rVal} \textrightarrow \code{identifier | callStmt | indexStmt | listStmt | expr | number | boolVal} \\
+\code{indexStmt} \textrightarrow \code{identifier\keyword{[}identifier\keyword{]} | identifier\keyword{[}intNumber\keyword{]}} \\
+\code{assignStmt} \textrightarrow \code{identifier \keyword{=} rVal} \\
+
+\code{expr} \textrightarrow \code{andExpr | andExpr \keyword{||} andExpr} \\
+\code{andExpr} \textrightarrow \code{compExpr | compExpr \keyword{\&\&} compExpr} \\
+\code{compExpr} \textrightarrow \code{sumExpr | sumExpr compOperator sumExpr} \\
+\code{sumExpr} \textrightarrow \code{mulExpr | mulExpr sumOperator mulExpr} \\
+\code{mulExpr} \textrightarrow \code{val | val mulOperator val} \\
+
+\code{identifier} \textrightarrow \code{letter*} \\
+\code{type} \textrightarrow \code{\keyword{int} | \keyword{float} | \keyword{bool} | \keyword{void}} \\
+\code{sumOperator} \textrightarrow \code{\keyword{+} | \keyword{-}} \\
+\code{mulOperator} \textrightarrow \code{\keyword{*} | \keyword{/}} \\
+\code{compOperator} \textrightarrow \code{\keyword{==} | \keyword{!=} | \keyword{<=} | \keyword{>=}} \\
+\code{letter} \textrightarrow \code{\keyword{A} \ldots \keyword{z}} \\
+\code{number} \textrightarrow \code{intNumber | floatNumber} \\
+\code{intNumber} \textrightarrow \code{digit*} \\
+\code{floatNumber} \textrightarrow \code{digit*.digit*} \\
+\code{digit} \textrightarrow \code{\keyword{0} \ldots \keyword{9}} \\
+\newpage
+
+\section{Przykłady}
+\subsection{Proste przypisanie wartości}
+\begin{lstlisting}[tabsize=2]
+int main() {
+	int a = 5;
+	int b = 3;
+	int c = a + b + 3;
+}
+\end{lstlisting}
+
+\subsection{Prosta konstrukcja warunkowa}
+\begin{lstlisting}[tabsize=2]
+int main() {
+	int a = 3;
+	int b = 6;
+	bool greater = false;
+	if (a > b) {
+		greater = true;
+	}
+}
+\end{lstlisting}
+
+\subsection{Prosta iteracja}
+\begin{lstlisting}[tabsize=2]
+int main() {
+	int a = 1;
+	for (int i = 0; i < 8; i = i + 1;) {
+		a = a * 2;
+	}
+}
+\end{lstlisting}
+
+\subsection{Użycie konstrukcji listowej}
+\begin{lstlisting}[tabsize=2]
+int main() {
+	list(int) l[10];
+	[3 for i in l];
+	[3 * i for i in l];
+}
+\end{lstlisting}
+
+\subsection{Operacje na listach}
+\begin{lstlisting}[tabsize=2]
+int main() {
+	list(int) l[10];
+	[0 for i in l];
+	for (int a = 0; a < 10; a = a + 1;) {
+		l[a] = a;
+	}
+\end{lstlisting}
+\newpage
+
+\section{Tutorial}
+Język posiada składnie bardzo podobną do języka C. \\
+Deklaracja funkcji odbywa się wg schematu: \\
+\texttt{TYP NAZWA (LISTA ARGUMENTÓW) \{INSTRUKCJE\}} \\
+
+Pętla \texttt{for} jest budowana w następujący sposób: \\
+\texttt{for (DEKLARACJA WARTOŚCI DO ITEROWANIA; WARUNEK KOŃCA; ZMIANA WARTOŚCI ITEROWANIA;)\{INSTRUKCJE\}}\\
+
+Instrukcja \texttt{if} jest budowana w następujący sposób: \\
+\texttt{if (WARUNEK) \{INSTRUKCJE\}} \\
+
+Operacje listowe realizowane są wg schematu: \\
+\texttt{[INSTRUKCJA for NAZWA ZMIENNEJ DLA JEDNEGO ELEMENTU in NAZWA LISTY]} \\
+
+Wszystkie instrukcje muszą kończyć się średnikiem.
+
+
+
+\end{document}

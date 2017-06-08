@@ -66,7 +66,7 @@ std::shared_ptr<DerivationNode> Parser::funDecl(const std::weak_ptr<DerivationNo
 		} else
 			node->addChild(nextAtom(node));
 	} else
-		throw std::domain_error(std::string(__FUNCTION__) + " Not expected symbol at line: " + currentLine());
+		throw std::domain_error(" Not expected symbol at line: " + currentLine());
 
 	if (atom == "{") {
 		node->addChild(funDef(node));
@@ -87,7 +87,7 @@ std::shared_ptr<DerivationNode> Parser::args(const std::weak_ptr<DerivationNode>
 	} else if (atom == ")") {
 		node->addChild(nextAtom(node));
 	} else
-		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
+		throw std::domain_error(" Closing paranthesis expected at line: " + currentLine());
 
 	return node;
 }
@@ -144,7 +144,7 @@ std::shared_ptr<DerivationNode> Parser::stmt(const std::weak_ptr<DerivationNode>
 				node->addChild(nextAtom(node));
 				node->addChild(assignStmt(node));
 			} else
-				throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
+				throw std::domain_error(" Unexpected symbol at line: " + currentLine());
 		}
 	}
 
@@ -170,13 +170,13 @@ std::shared_ptr<DerivationNode> Parser::whileStmt(const std::weak_ptr<Derivation
 	auto node = std::make_shared<DerivationNode>("whileStmt", parent);
 
 	if (atom != "(")
-		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
+		throw std::domain_error(" Paranthesis expected at line " + currentLine());
 	node->addChild(nextAtom(node));
 
 	node->addChild(expr(node));
 
 	if (atom != ")")
-		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
+		throw std::domain_error(" Paranthesis expected at line " + currentLine());
 	node->addChild(nextAtom(node));
 
 	node->addChild(stmts(node));
@@ -189,7 +189,7 @@ std::shared_ptr<DerivationNode> Parser::forStmt(const std::weak_ptr<DerivationNo
 	tree->pushTable(node->createScope());
 
 	if (atom != "(")
-		throw std::domain_error(std::string(__FUNCTION__) + " Paranthesis expected at line " + currentLine());
+		throw std::domain_error(" Paranthesis expected at line " + currentLine());
 	node->addChild(nextAtom(node));
 
 	if (atom == ";") {
@@ -213,7 +213,7 @@ std::shared_ptr<DerivationNode> Parser::forStmt(const std::weak_ptr<DerivationNo
 	node->addChild(semicolon(node));
 	node->addChild(stmt(node));
 	if (atom != ")")
-		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line " + currentLine());
+		throw std::domain_error(" Closing paranthesis expected at line " + currentLine());
 
 	node->addChild(nextAtom(node));
 	node->addChild(stmts(node));
@@ -238,7 +238,7 @@ std::shared_ptr<DerivationNode> Parser::callStmt(const std::weak_ptr<DerivationN
 			node->addChild(nextAtom(node));
 			break;
 		} else
-			throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
+			throw std::domain_error(" Unexpected symbol at line: " + currentLine());
 	}
 
 	node->addChild(semicolon(node));
@@ -251,7 +251,7 @@ std::shared_ptr<DerivationNode> Parser::indexStmt(const std::weak_ptr<Derivation
 
 	node->addChild(expr(node));
 	if (atom != "]")
-		throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
+		throw std::domain_error(" Unexpected symbol at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 
@@ -294,7 +294,7 @@ std::shared_ptr<DerivationNode> Parser::varDecl(const std::weak_ptr<DerivationNo
 		node->addChild(nextAtom(node));
 		node->addChild(indexStmt(node));
 	} else
-		throw std::domain_error(std::string(__FUNCTION__) + " Unexpected symbol at line: " + currentLine());
+		throw std::domain_error(" Unexpected symbol at line: " + currentLine());
 
 	return node;
 }
@@ -310,7 +310,7 @@ std::shared_ptr<DerivationNode> Parser::listStmt(const std::weak_ptr<DerivationN
 	}
 
 	if (atom != "]")
-		throw std::domain_error(std::string(__FUNCTION__) + " Closing bracket expected at line: " + currentLine());
+		throw std::domain_error(" Closing bracket expected at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 	node->addChild(semicolon(node));
@@ -323,13 +323,13 @@ std::shared_ptr<DerivationNode> Parser::basicListIter(const std::weak_ptr<Deriva
 
 	node->addChild(expr(node));
 	if (atom != "for")
-		throw std::domain_error(std::string(__FUNCTION__) + " Iteration statement expected at line: " + currentLine());
+		throw std::domain_error(" Iteration statement expected at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 	node->addChild(identifier(node));
 
 	if (atom != "in")
-		throw std::domain_error(std::string(__FUNCTION__) + " \"in\" expected at line: " + currentLine());
+		throw std::domain_error(" \"in\" expected at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 	node->addChild(identifier(node));
@@ -372,12 +372,12 @@ std::shared_ptr<DerivationNode> Parser::ifStmt(const std::weak_ptr<DerivationNod
 	auto node = std::make_shared<DerivationNode>("ifStmt", parent);
 
 	if (atom != "(")
-		throw std::domain_error(std::string(__FUNCTION__) + " Opening paranthesis expected at line: " + currentLine());
+		throw std::domain_error(" Opening paranthesis expected at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 	node->addChild(expr(node));
 	if (atom != ")")
-		throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
+		throw std::domain_error(" Closing paranthesis expected at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 
@@ -480,17 +480,17 @@ std::shared_ptr<DerivationNode> Parser::type(const std::weak_ptr<DerivationNode>
 	auto t = types.find(atom);
 
 	if (t == types.end())
-		throw std::domain_error(std::string(__FUNCTION__) + " Type expected at line: " + currentLine());
+		throw std::domain_error(" Type expected at line: " + currentLine());
 
 	if (atom == "list") {
 		node->addChild(nextAtom(node));
 		if (atom != "(")
-			throw std::domain_error(std::string(__FUNCTION__) + " Opening paranthesis expected at line: " + currentLine());
+			throw std::domain_error(" Opening paranthesis expected at line: " + currentLine());
 
 		node->addChild(nextAtom(node));
 		node->addChild(type(node));
 		if (atom != ")")
-			throw std::domain_error(std::string(__FUNCTION__) + " Closing paranthesis expected at line: " + currentLine());
+			throw std::domain_error(" Closing paranthesis expected at line: " + currentLine());
 	}
 
 	node->addChild(nextAtom(node));
@@ -503,7 +503,7 @@ std::shared_ptr<DerivationNode> Parser::identifier(const std::weak_ptr<Derivatio
 	auto t = types.find(atom);
 	auto keyword = keywords.find(atom);
 	if (t != types.end() || keyword != keywords.end())
-		throw std::domain_error(std::string(__FUNCTION__) + " Identifier expected at line: " + currentLine());
+		throw std::domain_error(" Identifier expected at line: " + currentLine());
 
 
 	if (node->getParent()->getChildren().size() > 0 && node->getParent()->getChildren()[0]->getLabel() == "type") {
@@ -523,7 +523,7 @@ std::shared_ptr<DerivationNode> Parser::semicolon(const std::weak_ptr<Derivation
 	auto node = std::make_shared<DerivationNode>("semicolon", parent);
 
 	if (atom != ";")
-		throw std::domain_error(std::string(__FUNCTION__) + " Semicolon expected at line: " + currentLine());
+		throw std::domain_error(" Semicolon expected at line: " + currentLine());
 
 	node->addChild(nextAtom(node));
 
