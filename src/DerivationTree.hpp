@@ -12,35 +12,36 @@ public:
 	DerivationTree() = default;
 	DerivationTree(const std::shared_ptr<DerivationNode> &root);
 
-	std::shared_ptr<DerivationNode> getCurrent();
+	// std::shared_ptr<DerivationNode> getCurrent();
 
 	void pushTable(const std::shared_ptr<SymbolTable> &table);
-	void execute();
+	std::vector<std::shared_ptr<SymbolTable>> getTables();
+	// void execute();
 
-	void fillSymbolTables();
-	void printTree();
-	void printSymbolTables();
+	// void fillSymbolTables();
+	void print();
+	// void printSymbolTables();
 
 private:
-	void setType(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
-	void setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
-	void setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
-	Type deduceType(bool isList, bool isFunction, const std::string &type);
-	std::shared_ptr<DerivationNode> findMain();
-	void nextNode();
-	void assignValue(const std::shared_ptr<DerivationNode> &n = nullptr);
-	void processStmt();
-	void processIf();
-	void processFor();
-	void processListStmt();
-	void processIndexStmt();
-	void processPrintStmt();
-	std::shared_ptr<void> evaluate(const std::shared_ptr<DerivationNode> &node);
+	// void setType(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
+	// void setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
+	// void setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
+	// Type deduceType(bool isList, bool isFunction, const std::string &type);
+	// std::shared_ptr<DerivationNode> findMain();
+	// void nextNode();
+	// void assignValue(const std::shared_ptr<DerivationNode> &n = nullptr);
+	// void processStmt();
+	// void processIf();
+	// void processFor();
+	// void processListStmt();
+	// void processIndexStmt();
+	// void processPrintStmt();
+	// std::shared_ptr<void> evaluate(const std::shared_ptr<DerivationNode> &node);
 
 	std::shared_ptr<DerivationNode> root;
-	std::shared_ptr<DerivationNode> current;
+	// std::shared_ptr<DerivationNode> current;
 	std::vector<std::shared_ptr<SymbolTable>> symbolTables;
-	std::vector<std::shared_ptr<DerivationNode>> dfsStack;
+	// std::vector<std::shared_ptr<DerivationNode>> dfsStack;
 };
 
 #endif

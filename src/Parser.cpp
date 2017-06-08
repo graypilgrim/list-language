@@ -18,8 +18,6 @@ std::shared_ptr<DerivationTree> Parser::run() {
 	nextAtom(root);
 	root->addChild(funsDecls(root));
 
-	tree->fillSymbolTables();
-
 	return tree;
 }
 

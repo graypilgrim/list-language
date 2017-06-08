@@ -13,6 +13,7 @@ SOURCES = \
 	./src/DerivationTree.cpp \
 	./src/SymbolTableEntry.cpp \
 	./src/SymbolTable.cpp \
+	./src/Interpreter.cpp \
 
 PROD_SOURCES = \
 	$(SOURCES) \
@@ -36,7 +37,7 @@ TEST_OBJECTS=$(TESTS_SOURCES:.cpp=.o)
 $(TESTS_BINARY): $(TEST_OBJECTS)
 	$(CXX) $^ -o $@
 
-all : prod tests
+all : tests
 
 tests : $(TESTS_BINARY)
 	./$(TESTS_BINARY)

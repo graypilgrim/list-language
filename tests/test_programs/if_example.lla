@@ -1,5 +1,5 @@
 int main() {
-	int a = 7;
+	int a = 3;
 	int b = 6;
 	bool greater = false;
 	if (a > b) {
