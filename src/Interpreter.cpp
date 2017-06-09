@@ -205,7 +205,6 @@ void Interpreter::nextNode()
 
 void Interpreter::assignValue(const std::shared_ptr<DerivationNode> &n)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 1" << std::endl;
 	auto node = n ? n : current;
 
 	auto indexInParent = node->findIndexInParent();
@@ -214,7 +213,6 @@ void Interpreter::assignValue(const std::shared_ptr<DerivationNode> &n)
 	if (parent->getType() == NodeType::varDecl || parent->getType() == NodeType::stmt) {
 		auto lValNode = parent->getChildren()[indexInParent-2]->getChildren()[0];
 		auto lVal = lValNode->getLabel();
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << lValNode->getLabel() << std::endl;
 		auto lValEntry = lValNode->getSymbolEntry(lVal);
 
 		auto rValNode = node->getChildren()[0];
@@ -245,8 +243,6 @@ void Interpreter::assignValue(const std::shared_ptr<DerivationNode> &n)
 		}
 		}
 	}
-
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 2" << std::endl;
 }
 
 void Interpreter::processStmt()
@@ -257,8 +253,8 @@ void Interpreter::processStmt()
 		assignValue();
 	else if (type == NodeType::condStmt)
 		processIf();
-	// else if (type == NodeType::forStmt)
-	// 	processFor();
+	else if (type == NodeType::forStmt)
+		processFor();
 	// else if (type == NodeType::listStmt)
 	// 	processListStmt();
 	// else if (type == NodeType::indexStmt)
@@ -280,42 +276,42 @@ void Interpreter::processIf()
 			nextNode();
 	}
 }
-//
-// void Interpreter::processFor()
-// {
-// 	auto forNode = current;
-// 	auto loopBodyNode = current->getChildren()[6];
-// 	auto endSign = loopBodyNode->getChildren().size() == 1 ? ";" : "}";
-//
-// 	while (current->getType() != NodeType::assignStmt)
-// 		nextNode();
-// 	assignValue();
-//
-// 	while (current->getLabel() != ";")
-// 		nextNode();
-// 	nextNode();
-//
-// 	auto condNode = current;
-//
-// 	while (current->getType() != NodeType::assignStmt)
-// 		nextNode();
-//
-// 	auto iteratorChangeNode = current;
-//
-// 	while (current->getLabel() != ")")
-// 		nextNode();
-// 	dfsStack.pop_back();
-//
-// 	while (*(bool*)(evaluate(condNode).get())) {
-// 		dfsStack.push_back(loopBodyNode);
-// 		nextNode();
-// 		while (current->getLabel() != endSign) {
-// 			processStmt();
-// 			nextNode();
-// 		}
-// 		assignValue(iteratorChangeNode);
-// 	}
-// }
+
+void Interpreter::processFor()
+{
+	auto forNode = current;
+	auto loopBodyNode = current->getChildren()[6];
+	auto endSign = loopBodyNode->getChildren().size() == 1 ? ";" : "}";
+
+	while (current->getType() != NodeType::assignStmt)
+		nextNode();
+	assignValue();
+
+	while (current->getLabel() != ";")
+		nextNode();
+	nextNode();
+
+	auto condNode = current;
+
+	while (current->getType() != NodeType::assignStmt)
+		nextNode();
+
+	auto iteratorChangeNode = current;
+
+	while (current->getLabel() != ")")
+		nextNode();
+	dfsStack.pop_back();
+
+	while (*(evaluate(condNode)->getBool())) {
+		dfsStack.push_back(loopBodyNode);
+		nextNode();
+		while (current->getLabel() != endSign) {
+			processStmt();
+			nextNode();
+		}
+		assignValue(iteratorChangeNode);
+	}
+}
 //
 // void Interpreter::processListStmt()
 // {
@@ -369,12 +365,10 @@ void Interpreter::processIf()
 //
 void Interpreter::processPrintStmt()
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << "1: "  << std::endl;
 	if (current->getChildren()[0]->getType() == NodeType::symbol) {
 		std::cout << current->getChildren()[0]->getLabel();
 	} else {
 		auto result = evaluateVal(current->getChildren()[0]);
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "2: "  << std::endl;
 
 		switch (result->getType()) {
 		case Type::INT:
@@ -416,7 +410,6 @@ std::shared_ptr<Value> Interpreter::evaluate(const std::shared_ptr<DerivationNod
 
 std::shared_ptr<Value> Interpreter::evaluateVal(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 1"  << node->getLabel() << std::endl;
 	if (node->getChildren()[0]->getType() == NodeType::identifier) {
 		auto id = node->getChildren()[0]->getChildren()[0];
 
@@ -508,14 +501,11 @@ std::shared_ptr<Value> Interpreter::evaluateVal(const std::shared_ptr<Derivation
 		return result;
 	}
 
-
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 2"  << node->getLabel() << std::endl;
 	return std::make_shared<Value>(Type::INT);
 }
 
 std::shared_ptr<Value> Interpreter::evaluateMul(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << node->getLabel() << std::endl;
 	auto result = evaluateVal(node->getChildren()[0]);
 
 
@@ -533,7 +523,6 @@ std::shared_ptr<Value> Interpreter::evaluateMul(const std::shared_ptr<Derivation
 
 std::shared_ptr<Value> Interpreter::evaluateSum(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << "1: "  << node->getLabel() << std::endl;
 	auto result = evaluateMul(node->getChildren()[0]);
 
 	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
@@ -543,17 +532,13 @@ std::shared_ptr<Value> Interpreter::evaluateSum(const std::shared_ptr<Derivation
 			*result += *nextItem;
 		if (node->getChildren()[i]->getLabel() == "-")
 			*result -= *nextItem;
-
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "3: "  << *(result->getInt()) << std::endl;
 	}
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << "2: "  << node->getLabel() << std::endl;
 
 	return result;
 }
 
 std::shared_ptr<Value> Interpreter::evaluateComp(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << node->getLabel() << std::endl;
 	if (node->getChildren().size() == 1)
 		return evaluateSum(node->getChildren()[0]);
 
@@ -576,7 +561,6 @@ std::shared_ptr<Value> Interpreter::evaluateComp(const std::shared_ptr<Derivatio
 
 std::shared_ptr<Value> Interpreter::evaluateAnd(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << node->getLabel() << std::endl;
 	if (node->getChildren().size() == 1)
 		return evaluateComp(node->getChildren()[0]);
 

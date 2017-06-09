@@ -18,15 +18,25 @@ TEST_CASE( "Execution: mocked stream") {
 		// "	println c;\n"
 		// "}\n";
 
+		// const char *program =
+		// "int main() {\n"
+		// "	int a = 8;\n"
+		// "	int b = 6;\n"
+		// "	bool greater = false;\n"
+		// "	if (a > b) {\n"
+		// "		greater = true;\n"
+		// "	}\n"
+		// "	println greater;\n"
+		// "}\n";
+		//
 		const char *program =
 		"int main() {\n"
-		"	int a = 8;\n"
-		"	int b = 6;\n"
-		"	bool greater = false;\n"
-		"	if (a > b) {\n"
-		"		greater = true;\n"
+		"	int a = 1;\n"
+		"	for (int i = 0; i < 8; i = i + 1;) {\n"
+		"		println a;\n"
+		"		a = a * 2;\n"
 		"	}\n"
-		"	println greater;\n"
+		"	println a;\n"
 		"}\n";
 
 		std::string exText(program);

@@ -29,7 +29,7 @@ private:
 	void assignValue(const std::shared_ptr<DerivationNode> &n = nullptr);
 	void processStmt();
 	void processIf();
-	// void processFor();
+	void processFor();
 	// void processListStmt();
 	// void processIndexStmt();
 	void processPrintStmt();

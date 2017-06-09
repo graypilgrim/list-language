@@ -104,10 +104,7 @@ public:
 		case Type::INT: {
 			auto val1 = *(reinterpret_cast<int*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<int*>(numberValues.second));
-			std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << val1 << std::endl;
-			std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << val2 << std::endl;
 			setInt(std::make_shared<int>(val1 + val2));
-			std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << *(getInt()) << std::endl;
 			return *this;
 		}
 
