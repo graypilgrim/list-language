@@ -15,7 +15,7 @@ TEST_CASE( "Execution: mocked stream") {
 		"	int a = 5;\n"
 		"	int b = 3;\n"
 		"	int c = a + b + 9;\n"
-		// "	println c;\n"
+		"	println c;\n"
 		"}\n";
 
 		std::string exText(program);

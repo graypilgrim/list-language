@@ -263,8 +263,8 @@ void Interpreter::processStmt()
 	// 	processListStmt();
 	// else if (type == NodeType::indexStmt)
 	// 	processIndexStmt();
-	// else if (type == NodeType::printStmt)
-	// 	processPrintStmt();
+	else if (type == NodeType::printStmt)
+		processPrintStmt();
 }
 
 // void Interpreter::processIf()
@@ -367,25 +367,39 @@ void Interpreter::processStmt()
 // 	}
 // }
 //
-// void Interpreter::processPrintStmt()
-// {
-// 	if (current->getChildren()[0]->getType() == NodeType::symbol) {
-// 		std::cout << current->getChildren()[0]->getLabel();
-// 	} else {
-// 		auto result = evaluate(current->getChildren()[0]);
-// 		std::cout << *(int*)(result.get());
-// 	}
-//
-// 	if (current->getParent()->getChildren()[0]->getLabel() == "println")
-// 		std::cout << std::endl;
-//
-// 	while (current->getLabel() != ";")
-// 		nextNode();
-// }
+void Interpreter::processPrintStmt()
+{
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << "1: "  << std::endl;
+	if (current->getChildren()[0]->getType() == NodeType::symbol) {
+		std::cout << current->getChildren()[0]->getLabel();
+	} else {
+		auto result = evaluateVal(current->getChildren()[0]);
+		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "2: "  << std::endl;
+
+		switch (result->getType()) {
+		case Type::INT:
+			std::cout << *(result->getInt());
+			break;
+
+		case Type::FLOAT:
+			std::cout << *(result->getFloat());
+			break;
+
+		case Type::BOOL:
+			std::cout << *(result->getBool());
+			break;
+		}
+	}
+
+	if (current->getParent()->getChildren()[0]->getLabel() == "println")
+		std::cout << std::endl;
+
+	while (current->getLabel() != ";")
+		nextNode();
+}
 
 std::shared_ptr<Value> Interpreter::evaluate(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << node->getLabel() << std::endl;
 	if (node->getChildren().size() == 1)
 		return evaluateAnd(node->getChildren()[0]);
 
@@ -519,14 +533,11 @@ std::shared_ptr<Value> Interpreter::evaluateMul(const std::shared_ptr<Derivation
 
 std::shared_ptr<Value> Interpreter::evaluateSum(const std::shared_ptr<DerivationNode> &node)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": "  << node->getLabel() << std::endl;
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << "1: "  << node->getLabel() << std::endl;
 	auto result = evaluateMul(node->getChildren()[0]);
 
 	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
 		auto nextItem = evaluateMul(node->getChildren()[i+1]);
-
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "1: "  << *(result->getInt()) << std::endl;
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "2: "  << *(nextItem->getInt()) << std::endl;
 
 		if (node->getChildren()[i]->getLabel() == "+")
 			*result += *nextItem;
@@ -535,6 +546,7 @@ std::shared_ptr<Value> Interpreter::evaluateSum(const std::shared_ptr<Derivation
 
 		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "3: "  << *(result->getInt()) << std::endl;
 	}
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << "2: "  << node->getLabel() << std::endl;
 
 	return result;
 }
