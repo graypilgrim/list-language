@@ -195,30 +195,30 @@ std::pair<void*, void*> Value::extractActualValues(const Value *val1, const Valu
 	void *result1 = nullptr;
 	switch (val1->getType()) {
 	case Type::INT:
-		result1 = getInt().get();
+		result1 = val1->getInt().get();
 		break;
 
 	case Type::FLOAT:
-		result1 = getFloat().get();
+		result1 = val1->getFloat().get();
 		break;
 
 	case Type::BOOL:
-		result1 = getBool().get();
+		result1 = val1->getBool().get();
 		break;
 	}
 
 	void *result2 = nullptr;
 	switch (val2->getType()) {
 	case Type::INT:
-		result2 = getInt().get();
+		result2 = val2->getInt().get();
 		break;
 
 	case Type::FLOAT:
-		result2 = getFloat().get();
+		result2 = val2->getFloat().get();
 		break;
 
 	case Type::BOOL:
-		result2 = getBool().get();
+		result2 = val2->getBool().get();
 		break;
 	}
 

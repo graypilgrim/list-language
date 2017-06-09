@@ -14,7 +14,7 @@ TEST_CASE( "Execution: mocked stream") {
 		"int main() {\n"
 		"	int a = 5;\n"
 		"	int b = 3;\n"
-		"	int c = 3 + a;\n"
+		"	int c = a + b + 9;\n"
 		// "	println c;\n"
 		"}\n";
 

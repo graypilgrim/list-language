@@ -408,8 +408,30 @@ std::shared_ptr<Value> Interpreter::evaluateVal(const std::shared_ptr<Derivation
 
 		auto entry = id->getSymbolEntry(id->getLabel());
 
-		if (node->getChildren().size() == 1)
-			return entry->getValue();
+		if (node->getChildren().size() == 1) {
+			auto result = std::make_shared<Value>(entry->getValue()->getType());
+
+			switch (entry->getValue()->getType()) {
+			case Type::INT: {
+				auto val = std::make_shared<int>(*(entry->getValue()->getInt()));
+				result->setInt(val);
+				break;
+			}
+
+			case Type::FLOAT: {
+				auto val = std::make_shared<float>(*(entry->getValue()->getFloat()));
+				result->setFloat(val);
+				break;
+			}
+
+			case Type::BOOL: {
+				auto val = std::make_shared<bool>(*(entry->getValue()->getBool()));
+				result->setBool(val);
+				break;
+			}
+			}
+			return result;
+		}
 
 		auto index = evaluate(node->getChildren()[2]->getChildren()[0]);
 		if (index->getType() != Type::INT)
@@ -503,10 +525,15 @@ std::shared_ptr<Value> Interpreter::evaluateSum(const std::shared_ptr<Derivation
 	for (size_t i = 1; i < node->getChildren().size(); i+=2) {
 		auto nextItem = evaluateMul(node->getChildren()[i+1]);
 
+		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "1: "  << *(result->getInt()) << std::endl;
+		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "2: "  << *(nextItem->getInt()) << std::endl;
+
 		if (node->getChildren()[i]->getLabel() == "+")
 			*result += *nextItem;
 		if (node->getChildren()[i]->getLabel() == "-")
 			*result -= *nextItem;
+
+		std::cout << ">>>>DEBUG: " << __FUNCTION__ << "3: "  << *(result->getInt()) << std::endl;
 	}
 
 	return result;
