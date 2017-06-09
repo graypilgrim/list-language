@@ -1,10 +1,12 @@
 #include "Value.hpp"
 
+#include <iostream>
+
 Value::Value(Type type)
 	: type(type)
 {}
 
-inline bool Value::operator<(const Value &val)
+bool Value::operator<(const Value &val) const
 {
 	if (type != val.getType())
 		throw std::runtime_error("Comparison of different types");
@@ -19,16 +21,103 @@ inline bool Value::operator<(const Value &val)
 	case Type::BOOL:
 		return *getBool() < *(val.getBool());
 	}
+
+	return false;
 }
 
-inline bool Value::operator>(const Value &val)
+bool Value::operator>(const Value &val) const
 {
+	if (type != val.getType())
+		throw std::runtime_error("Comparison of different types");
 
+	switch (type) {
+	case Type::INT:
+		return *getInt() > *(val.getInt());
+
+	case Type::FLOAT:
+		return *getFloat() > *(val.getFloat());
+
+	case Type::BOOL:
+		return *getBool() > *(val.getBool());
+	}
+
+	return false;
 }
 
-inline bool Value::operator==(const Value &val)
+bool Value::operator==(const Value &val) const
 {
+	if (type != val.getType())
+		throw std::runtime_error("Comparison of different types");
 
+	switch (type) {
+	case Type::INT:
+		return *getInt() == *(val.getInt());
+
+	case Type::FLOAT:
+		return *getFloat() == *(val.getFloat());
+
+	case Type::BOOL:
+		return *getBool() == *(val.getBool());
+	}
+
+	return false;
+}
+
+bool Value::operator!=(const Value &val) const
+{
+	if (type != val.getType())
+		throw std::runtime_error("Comparison of different types");
+
+	switch (type) {
+	case Type::INT:
+		return *getInt() != *(val.getInt());
+
+	case Type::FLOAT:
+		return *getFloat() != *(val.getFloat());
+
+	case Type::BOOL:
+		return *getBool() != *(val.getBool());
+	}
+
+	return false;
+}
+
+bool Value::operator&&(const Value &val) const
+{
+	if (type != val.getType())
+		throw std::runtime_error("Comparison of different types");
+
+	switch (type) {
+	case Type::INT:
+		return *getInt() && *(val.getInt());
+
+	case Type::FLOAT:
+		return *getFloat() && *(val.getFloat());
+
+	case Type::BOOL:
+		return *getBool() && *(val.getBool());
+	}
+
+	return false;
+}
+
+bool Value::operator||(const Value &val) const
+{
+	if (type != val.getType())
+		throw std::runtime_error("Comparison of different types");
+
+	switch (type) {
+	case Type::INT:
+		return *getInt() || *(val.getInt());
+
+	case Type::FLOAT:
+		return *getFloat() || *(val.getFloat());
+
+	case Type::BOOL:
+		return *getBool() || *(val.getBool());
+	}
+
+	return false;
 }
 
 void Value::setType(Type type)
@@ -103,7 +192,7 @@ Type Value::chooseWiderType(Type type1, Type type2) const
 
 std::pair<void*, void*> Value::extractActualValues(const Value *val1, const Value *val2) const
 {
-	void *result1;
+	void *result1 = nullptr;
 	switch (val1->getType()) {
 	case Type::INT:
 		result1 = getInt().get();
@@ -118,7 +207,7 @@ std::pair<void*, void*> Value::extractActualValues(const Value *val1, const Valu
 		break;
 	}
 
-	void *result2;
+	void *result2 = nullptr;
 	switch (val2->getType()) {
 	case Type::INT:
 		result2 = getInt().get();

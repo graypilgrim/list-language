@@ -1,7 +1,7 @@
 #include "SymbolTableEntry.hpp"
 
 SymbolTableEntry::SymbolTableEntry()
-	: funcArgsNo(0), listSize(0)
+	: value(std::make_shared<Value>(Type::INT)), funcArgsNo(0), listSize(0)
 {}
 
 bool SymbolTableEntry::isFunction()
@@ -9,9 +9,20 @@ bool SymbolTableEntry::isFunction()
 	return function;
 }
 
+void SymbolTableEntry::setFunction(bool flag)
+{
+	function = flag;
+}
+
+
 bool SymbolTableEntry::isList()
 {
 	return list;
+}
+
+void SymbolTableEntry::setList(bool flag)
+{
+	list = flag;
 }
 
 void SymbolTableEntry::setValue(const std::shared_ptr<Value> &value)

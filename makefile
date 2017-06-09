@@ -14,6 +14,7 @@ SOURCES = \
 	./src/SymbolTableEntry.cpp \
 	./src/SymbolTable.cpp \
 	./src/Interpreter.cpp \
+	./src/Value.cpp \
 
 PROD_SOURCES = \
 	$(SOURCES) \

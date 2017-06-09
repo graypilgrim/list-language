@@ -18,19 +18,21 @@ public:
 private:
 	void fillSymbolTables();
 
+	void printList(const std::shared_ptr<SymbolTableEntry> &entry);
+
 	void setType(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
 	void setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
 	void setValueMaybe(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry);
-	Type deduceType(bool isList, bool isFunction, const std::string &type);
+	Type deduceType(const std::string &type);
 	std::shared_ptr<DerivationNode> findMain();
 	void nextNode();
 	void assignValue(const std::shared_ptr<DerivationNode> &n = nullptr);
 	void processStmt();
-	void processIf();
-	void processFor();
-	void processListStmt();
-	void processIndexStmt();
-	void processPrintStmt();
+	// void processIf();
+	// void processFor();
+	// void processListStmt();
+	// void processIndexStmt();
+	// void processPrintStmt();
 	std::shared_ptr<Value> evaluate(const std::shared_ptr<DerivationNode> &node);
 	std::shared_ptr<Value> evaluateVal(const std::shared_ptr<DerivationNode> &node);
 	std::shared_ptr<Value> evaluateMul(const std::shared_ptr<DerivationNode> &node);

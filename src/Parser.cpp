@@ -92,7 +92,6 @@ std::shared_ptr<DerivationNode> Parser::args(const std::weak_ptr<DerivationNode>
 }
 
 std::shared_ptr<DerivationNode> Parser::stmts(const std::weak_ptr<DerivationNode> &parent) {
-	// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << atom << std::endl;
 	auto node = std::make_shared<DerivationNode>(NodeType::stmts, parent);
 	if (atom == "{"){
 		node->addChild(nextAtom(node));

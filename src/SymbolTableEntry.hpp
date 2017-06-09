@@ -12,7 +12,9 @@ public:
 	SymbolTableEntry();
 
 	bool isFunction();
+	void setFunction(bool flag);
 	bool isList();
+	void setList(bool flag);
 
 	void setValue(const std::shared_ptr<Value> &value);
 	std::shared_ptr<Value> getValue();
@@ -26,8 +28,6 @@ public:
 	static std::string typeToString(Type type);
 
 private:
-	Type type;
-	// std::shared_ptr<void> value;
 	bool function;
 	bool list;
 	std::shared_ptr<Value> value;

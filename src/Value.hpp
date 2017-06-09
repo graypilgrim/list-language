@@ -24,7 +24,7 @@ public:
 		intVal = val.getInt();
 		floatVal = val.getFloat();
 		boolVal = val.getBool();
-	}
+	};
 
 	Value &operator*=(const Value &val) {
 		if (&val == this)
@@ -37,27 +37,27 @@ public:
 		case Type::INT: {
 			auto val1 = *(reinterpret_cast<int*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<int*>(numberValues.second));
-			setInt(std::make_shared<int>(new int(val1 * val2)));
+			setInt(std::make_shared<int>(val1 * val2));
 			return *this;
 		}
 
 		case Type::FLOAT: {
 			auto val1 = *(reinterpret_cast<float*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<float*>(numberValues.second));
-			setFloat(std::make_shared<float>(new float(val1 * val2)));
+			setFloat(std::make_shared<float>(val1 * val2));
 			return *this;
 		}
 
 		case Type::BOOL: {
 			auto val1 = *(reinterpret_cast<bool*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<bool*>(numberValues.second));
-			setBool(std::make_shared<bool>(new bool(val1 && val2)));
+			setBool(std::make_shared<bool>(val1 && val2));
 			return *this;
 		}
 		}
 
 		return *this;
-	}
+	};
 
 	Value &operator/=(const Value &val) {
 		if (&val == this)
@@ -70,27 +70,27 @@ public:
 		case Type::INT: {
 			auto val1 = *(reinterpret_cast<int*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<int*>(numberValues.second));
-			setInt(std::make_shared<int>(new int(val1 / val2)));
+			setInt(std::make_shared<int>(val1 / val2));
 			return *this;
 		}
 
 		case Type::FLOAT: {
 			auto val1 = *(reinterpret_cast<float*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<float*>(numberValues.second));
-			setFloat(std::make_shared<float>(new float(val1 / val2)));
+			setFloat(std::make_shared<float>(val1 / val2));
 			return *this;
 		}
 
 		case Type::BOOL: {
 			auto val1 = *(reinterpret_cast<bool*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<bool*>(numberValues.second));
-			setBool(std::make_shared<bool>(new bool(val1 / val2)));
+			setBool(std::make_shared<bool>(val1 / val2));
 			return *this;
 		}
 		}
 
 		return *this;
-	}
+	};
 
 	Value &operator+=(const Value &val) {
 		if (&val == this)
@@ -103,27 +103,27 @@ public:
 		case Type::INT: {
 			auto val1 = *(reinterpret_cast<int*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<int*>(numberValues.second));
-			setInt(std::make_shared<int>(new int(val1 + val2)));
+			setInt(std::make_shared<int>(val1 + val2));
 			return *this;
 		}
 
 		case Type::FLOAT: {
 			auto val1 = *(reinterpret_cast<float*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<float*>(numberValues.second));
-			setFloat(std::make_shared<float>(new float(val1 + val2)));
+			setFloat(std::make_shared<float>(val1 + val2));
 			return *this;
 		}
 
 		case Type::BOOL: {
 			auto val1 = *(reinterpret_cast<bool*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<bool*>(numberValues.second));
-			setBool(std::make_shared<bool>(new bool(val1 + val2)));
+			setBool(std::make_shared<bool>(val1 + val2));
 			return *this;
 		}
 		}
 
 		return *this;
-	}
+	};
 
 	Value &operator-=(const Value &val) {
 		if (&val == this)
@@ -136,31 +136,34 @@ public:
 		case Type::INT: {
 			auto val1 = *(reinterpret_cast<int*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<int*>(numberValues.second));
-			setInt(std::make_shared<int>(new int(val1 - val2)));
+			setInt(std::make_shared<int>(val1 - val2));
 			return *this;
 		}
 
 		case Type::FLOAT: {
 			auto val1 = *(reinterpret_cast<float*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<float*>(numberValues.second));
-			setFloat(std::make_shared<float>(new float(val1 - val2)));
+			setFloat(std::make_shared<float>(val1 - val2));
 			return *this;
 		}
 
 		case Type::BOOL: {
 			auto val1 = *(reinterpret_cast<bool*>(numberValues.first));
 			auto val2 = *(reinterpret_cast<bool*>(numberValues.second));
-			setBool(std::make_shared<bool>(new bool(val1 - val2)));
+			setBool(std::make_shared<bool>(val1 - val2));
 			return *this;
 		}
 		}
 
 		return *this;
-	}
+	};
 
-	inline bool operator<(const Value &val);
-	inline bool operator>(const Value &val);
-	inline bool operator==(const Value &val);
+	bool operator<(const Value &val) const;
+	bool operator>(const Value &val) const;
+	bool operator==(const Value &val) const;
+	bool operator!=(const Value &val) const;
+	bool operator&&(const Value &val) const;
+	bool operator||(const Value &val) const;
 
 	void setType(Type type);
 	Type getType() const;
