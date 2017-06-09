@@ -10,12 +10,23 @@ TEST_CASE( "Execution: mocked stream") {
 
 	SECTION( "List statement with for" ) {
 
+		// const char *program =
+		// "int main() {\n"
+		// "	int a = 5;\n"
+		// "	int b = 3;\n"
+		// "	int c = a + b + 9;\n"
+		// "	println c;\n"
+		// "}\n";
+
 		const char *program =
 		"int main() {\n"
-		"	int a = 5;\n"
-		"	int b = 3;\n"
-		"	int c = a + b + 9;\n"
-		"	println c;\n"
+		"	int a = 8;\n"
+		"	int b = 6;\n"
+		"	bool greater = false;\n"
+		"	if (a > b) {\n"
+		"		greater = true;\n"
+		"	}\n"
+		"	println greater;\n"
 		"}\n";
 
 		std::string exText(program);

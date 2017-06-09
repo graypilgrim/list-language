@@ -28,7 +28,7 @@ private:
 	void nextNode();
 	void assignValue(const std::shared_ptr<DerivationNode> &n = nullptr);
 	void processStmt();
-	// void processIf();
+	void processIf();
 	// void processFor();
 	// void processListStmt();
 	// void processIndexStmt();

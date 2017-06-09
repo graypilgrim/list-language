@@ -60,7 +60,7 @@ void Interpreter::printList(const std::shared_ptr<SymbolTableEntry> &entry)
 	}
 	}
 
-std::cout << "]";
+	std::cout << "]";
 }
 
 void Interpreter::printSymbolTables()
@@ -255,8 +255,8 @@ void Interpreter::processStmt()
 
 	if (type == NodeType::varDef || type == NodeType::assignStmt)
 		assignValue();
-	// else if (type == NodeType::condStmt)
-	// 	processIf();
+	else if (type == NodeType::condStmt)
+		processIf();
 	// else if (type == NodeType::forStmt)
 	// 	processFor();
 	// else if (type == NodeType::listStmt)
@@ -267,19 +267,19 @@ void Interpreter::processStmt()
 		processPrintStmt();
 }
 
-// void Interpreter::processIf()
-// {
-// 	auto condNode = current->getChildren()[0]->getChildren()[1];
-// 	auto endSign = current->getChildren()[1]->getChildren().size() == 1 ? ";" : "}";
-//
-// 	auto condition = evaluate(condNode);
-// 	if (*(bool*)(condition.get())) {
-// 		current = current->getChildren()[1];
-// 	} else {
-// 		while (current->getLabel() != endSign)
-// 			nextNode();
-// 	}
-// }
+void Interpreter::processIf()
+{
+	auto condNode = current->getChildren()[0]->getChildren()[1];
+	auto endSign = current->getChildren()[1]->getChildren().size() == 1 ? ";" : "}";
+
+	auto condition = evaluate(condNode);
+	if (*(condition->getBool())) {
+		current = current->getChildren()[1];
+	} else {
+		while (current->getLabel() != endSign)
+			nextNode();
+	}
+}
 //
 // void Interpreter::processFor()
 // {
@@ -501,9 +501,9 @@ std::shared_ptr<Value> Interpreter::evaluateVal(const std::shared_ptr<Derivation
 		auto result = std::make_shared<Value>(Type::BOOL);
 
 		if (val == "true")
-			result->setBool(std::make_shared<bool>(new bool(true)));
+			result->setBool(std::make_shared<bool>(true));
 		else if (val == "false")
-			result->setBool(std::make_shared<bool>(new bool(false)));
+			result->setBool(std::make_shared<bool>(false));
 
 		return result;
 	}
