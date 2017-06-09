@@ -29,14 +29,22 @@ TEST_CASE( "Execution: mocked stream") {
 		// "	println greater;\n"
 		// "}\n";
 		//
+		// const char *program =
+		// "int main() {\n"
+		// "	int a = 1;\n"
+		// "	for (int i = 0; i < 8; i = i + 1;) {\n"
+		// "		println a;\n"
+		// "		a = a * 2;\n"
+		// "	}\n"
+		// "	println a;\n"
+		// "}\n";
+
 		const char *program =
 		"int main() {\n"
-		"	int a = 1;\n"
-		"	for (int i = 0; i < 8; i = i + 1;) {\n"
-		"		println a;\n"
-		"		a = a * 2;\n"
-		"	}\n"
-		"	println a;\n"
+		"	list(int) l[10];\n"
+		"	[3 for i in l];\n"
+		"	[3 * i for i in l];\n"
+		"	println l[3];\n"
 		"}\n";
 
 		std::string exText(program);

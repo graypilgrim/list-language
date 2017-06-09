@@ -45,18 +45,22 @@ void Interpreter::printList(const std::shared_ptr<SymbolTableEntry> &entry)
 		auto array = entry->getValue()->getInt().get();
 		for (size_t i = 0; i < entry->getListSize(); ++i)
 			std::cout << array[i] << " ";
+		break;
 	}
 
 	case Type::FLOAT: {
 			auto array = entry->getValue()->getFloat().get();
 			for (size_t i = 0; i < entry->getListSize(); ++i)
 				std::cout << array[i] << " ";
-		}
+			break;
+	}
 
 	case Type::BOOL: {
 		auto array = entry->getValue()->getBool().get();
 		for (size_t i = 0; i < entry->getListSize(); ++i)
 			std::cout << array[i] << " ";
+
+		break;
 	}
 	}
 
@@ -102,6 +106,8 @@ void Interpreter::printSymbolTables()
 
 void Interpreter::setType(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
 {
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << node->getLabel() << std::endl;
+
 	bool list = false;
 	bool function = false;
 	auto grandParent = node->getParent()->getParent();
@@ -113,6 +119,16 @@ void Interpreter::setType(const std::shared_ptr<DerivationNode> &node, const std
 	if (typeNode->getLabel() == "list") {
 		list = true;
 		typeNode = typeNode->getParent()->getChildren()[2]->getChildren()[0];
+		auto listSizeNode = grandParent->getChildren()[3];
+
+
+		if (listSizeNode->getLabel() == "]")
+			throw std::runtime_error("List has no size");
+
+		auto size = evaluate(listSizeNode->getChildren()[0]);
+		auto val = std::shared_ptr<int>(new int[*(size->getInt())]);
+		entry->getValue()->setInt(val);
+		entry->setListSize(*(size->getInt()));
 	}
 
 	entry->setFunction(function);
@@ -121,7 +137,7 @@ void Interpreter::setType(const std::shared_ptr<DerivationNode> &node, const std
 
 	auto type = entry->getValue()->getType();
 
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << node->getLabel() << std::endl;
+	// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << node->getLabel() << std::endl;
 	switch (type) {
 	case Type::INT:
 		std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": int" << std::endl;
@@ -255,8 +271,8 @@ void Interpreter::processStmt()
 		processIf();
 	else if (type == NodeType::forStmt)
 		processFor();
-	// else if (type == NodeType::listStmt)
-	// 	processListStmt();
+	else if (type == NodeType::listStmt)
+		processListStmt();
 	// else if (type == NodeType::indexStmt)
 	// 	processIndexStmt();
 	else if (type == NodeType::printStmt)
@@ -312,36 +328,69 @@ void Interpreter::processFor()
 		assignValue(iteratorChangeNode);
 	}
 }
-//
-// void Interpreter::processListStmt()
-// {
-// 	auto table = current->createScope();
-// 	tree->pushTable(table);
-// 	auto entry = std::make_shared<SymbolTableEntry>();
-// 	entry->setValue(std::make_shared<Value>(Type::INT));
-// 	auto idNode = current->getChildren()[0]->getChildren()[2]->getChildren()[0];
-// 	auto id = idNode->getLabel();
-// 	table->addEntry(id, entry, idNode);
-//
-// 	auto listName = current->getChildren()[0]->getChildren()[4]->getChildren()[0]->getLabel();
-// 	auto listEntry = current->getSymbolEntry(listName);
-// 	auto type = listEntry->getValue()->getType();
-//
-// 	if (type == Type::INT)
-// 		entry->getValue()->setType(Type::INT);
-// 	else if (type == Type::BOOL)
-// 		entry->getValue()->setType(Type::BOOL);
-// 	else if (type == Type::FLOAT)
-// 		entry->getValue()->setType(Type::FLOAT);
-//
-// 	auto listVal = (int*)(listEntry->getValue().get());
-// 	for (size_t i = 0; i < listEntry->getListSize(); ++i) {
-// 		auto itVal = entry->getValue();
-// 		*(int*)(itVal.get()) = listVal[i];
-// 		auto newVal = evaluate(current->getChildren()[0]->getChildren()[0]);
-// 		listVal[i] = *(int*)(newVal.get());
-// 	}
-// }
+
+void Interpreter::processListStmt()
+{
+	auto table = current->createScope();
+	tree->pushTable(table);
+	auto entry = std::make_shared<SymbolTableEntry>();
+	entry->setValue(std::make_shared<Value>(Type::INT));
+	entry->getValue()->setInt(std::make_shared<int>(0));
+	auto idNode = current->getChildren()[0]->getChildren()[2]->getChildren()[0];
+	auto id = idNode->getLabel();
+	table->addEntry(id, entry, idNode);
+
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 1" << std::endl;
+
+	auto listName = current->getChildren()[0]->getChildren()[4]->getChildren()[0]->getLabel();
+	auto listEntry = current->getSymbolEntry(listName);
+	auto type = listEntry->getValue()->getType();
+
+	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 2" << std::endl;
+
+	// if (type == Type::INT)
+	// 	entry->getValue()->setType(Type::INT);
+	// else if (type == Type::BOOL)
+	// 	entry->getValue()->setType(Type::BOOL);
+	// else if (type == Type::FLOAT)
+	// 	entry->getValue()->setType(Type::FLOAT);
+
+	switch (type) {
+	case Type::INT: {
+		auto listVal = listEntry->getValue()->getInt().get();
+		for (size_t i = 0; i < listEntry->getListSize(); ++i) {
+			auto itVal = entry->getValue()->getInt().get();
+			*(itVal) = listVal[i];
+
+			auto newVal = evaluate(current->getChildren()[0]->getChildren()[0]);
+			listVal[i] = *(newVal->getInt().get());
+		}
+		break;
+	}
+
+	case Type::FLOAT: {
+		auto listVal = listEntry->getValue()->getFloat().get();
+		for (size_t i = 0; i < listEntry->getListSize(); ++i) {
+			auto itVal = entry->getValue()->getFloat().get();
+			*(itVal) = listVal[i];
+			auto newVal = evaluate(current->getChildren()[0]->getChildren()[0]);
+			listVal[i] = *(newVal->getFloat().get());
+		}
+		break;
+	}
+
+	case Type::BOOL: {
+		auto listVal = listEntry->getValue()->getBool().get();
+		for (size_t i = 0; i < listEntry->getListSize(); ++i) {
+			auto itVal = entry->getValue()->getBool().get();
+			*(itVal) = listVal[i];
+			auto newVal = evaluate(current->getChildren()[0]->getChildren()[0]);
+			listVal[i] = *(newVal->getBool().get());
+		}
+		break;
+	}
+	}
+}
 //
 // void Interpreter::processIndexStmt()
 // {

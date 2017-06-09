@@ -30,7 +30,7 @@ private:
 	void processStmt();
 	void processIf();
 	void processFor();
-	// void processListStmt();
+	void processListStmt();
 	// void processIndexStmt();
 	void processPrintStmt();
 	std::shared_ptr<Value> evaluate(const std::shared_ptr<DerivationNode> &node);
