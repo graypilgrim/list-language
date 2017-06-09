@@ -16,7 +16,6 @@ void Interpreter::execute()
 	if (!current)
 		throw std::runtime_error("No main function");
 
-	printSymbolTables();
 	while (current) {
 		processStmt();
 		nextNode();
@@ -106,8 +105,6 @@ void Interpreter::printSymbolTables()
 
 void Interpreter::setType(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
 {
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << node->getLabel() << std::endl;
-
 	bool list = false;
 	bool function = false;
 	auto grandParent = node->getParent()->getParent();
@@ -134,23 +131,6 @@ void Interpreter::setType(const std::shared_ptr<DerivationNode> &node, const std
 	entry->setFunction(function);
 	entry->setList(list);
 	entry->getValue()->setType(deduceType(typeNode->getLabel()));
-
-	auto type = entry->getValue()->getType();
-
-	// std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": " << node->getLabel() << std::endl;
-	switch (type) {
-	case Type::INT:
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": int" << std::endl;
-		break;
-
-	case Type::FLOAT:
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": float" << std::endl;
-		break;
-
-	case Type::BOOL:
-		std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": bool" << std::endl;
-		break;
-	}
 }
 
 void Interpreter::setArgsNo(const std::shared_ptr<DerivationNode> &node, const std::shared_ptr<SymbolTableEntry> &entry)
@@ -276,8 +256,6 @@ void Interpreter::processStmt()
 		processFor();
 	else if (type == NodeType::listStmt)
 		processListStmt();
-	// else if (type == NodeType::indexStmt)
-	// 	processIndexStmt();
 	else if (type == NodeType::printStmt)
 		processPrintStmt();
 }
@@ -382,26 +360,6 @@ void Interpreter::processListStmt()
 		break;
 	}
 	}
-}
-
-void Interpreter::processIndexStmt()
-{
-	// if (current->getParent()->getType() == NodeType::varDecl) {
-	// 	auto siblings = current->getParent()->getChildren();
-	// 	std::string id;
-	// 	for (auto &n : siblings)
-	// 		if (n->getType() == NodeType::identifier) {
-	// 			id = n->getChildren()[0]->getLabel();
-	// 			break;
-	// 		}
-	//
-	// 	auto entry = current->getSymbolEntry(id);
-	// 	auto listSize = evaluate(current->getChildren()[0]);
-	// 	auto listSizeNumber = *(int*)(listSize.get());
-	// 	entry->setListSize(listSizeNumber);
-	// 	auto val = std::shared_ptr<void>(new int[listSizeNumber]);
-	// 	entry->setValue(val);
-	// }
 }
 
 void Interpreter::processPrintStmt()
