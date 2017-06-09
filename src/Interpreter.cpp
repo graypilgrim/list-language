@@ -553,6 +553,8 @@ std::shared_ptr<Value> Interpreter::evaluateComp(const std::shared_ptr<Derivatio
 		result->setBool(std::make_shared<bool>(*left > *right));
 	if (node->getChildren()[1]->getLabel() == "==")
 		result->setBool(std::make_shared<bool>(*left == *right));
+	if (node->getChildren()[1]->getLabel() == "!=")
+		result->setBool(std::make_shared<bool>(*left == *right));
 
 
 	return result;

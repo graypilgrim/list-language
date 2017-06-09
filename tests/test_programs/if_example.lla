@@ -7,4 +7,11 @@ int main() {
 	}
 
 	println greater;
+
+	int temp = 19;
+	if (temp > 25)
+		println "It's hot!";
+
+	if (temp < 25)
+		println "Preety cool!";
 }

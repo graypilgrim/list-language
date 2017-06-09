@@ -42,7 +42,7 @@
 \end{enumerate}
 
 \subsection{Słowa kluczowe}
-\keyword{list}, \keyword{if}, \keyword{else}, \keyword{while}, \keyword{for}, \keyword{in}, \keyword{return}\\
+\keyword{list}, \keyword{if}, \keyword{for}, \keyword{in}, \keyword{return}\\
 \keyword{true}, \keyword{false}, \\
 \keyword{(}, \keyword{)}, \keyword{[}, \keyword{]}, \keyword{\{}, \keyword{\}}, \\
 \keyword{=}, \keyword{+}, \keyword{-}, \keyword{*}, \keyword{/} \\
@@ -60,18 +60,14 @@
 \code{stmts} \textrightarrow \code{stmt | stmt\keyword{;} | \keyword{\{} stmts \keyword{\}} | stmt\keyword{;} stmts} \\
 \code{stmt} \textrightarrow \code{condStmt | loopStmt | callStmt | indexStmt | varDef | varDecl | listStmt | retStmt | assignStmt} \\
 
-\code{condStmt} \textrightarrow \code{ifStmt | ifStmt elseStmt} \\
+\code{condStmt} \textrightarrow \code{ifStmt} \\
 \code{ifStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)} stmts } \\
-\code{elseStmt} \textrightarrow \code{\keyword{else} stmts} \\
 \code{retStmt} \textrightarrow \code{\keyword{return} val} \\
-\code{callStmt} \textrightarrow \code{identifier\keyword{(}vals\keyword{)}} \\
 
-\code{loopStmt} \textrightarrow \code{whileStmt | forStmt} \\
-\code{whileStmt} \textrightarrow \code{\keyword{while (} expr \keyword{)} stmts} \\
+\code{loopStmt} \textrightarrow \code{forStmt} \\
 \code{forStmt} \textrightarrow \code{\keyword{for (} \{varDef | $\epsilon$\} \keyword{;} \{expr | $\epsilon$\} \keyword{;} \{expr | $\epsilon$\} \keyword{;)} stmts}
 
-\code{listStmt} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} | \keyword{[} basicListIter listIfStmt \keyword{]} } \\
-\code{listIfStmt} \textrightarrow \code{\keyword{if (} expr \keyword{)}} \\
+\code{listStmt} \textrightarrow \code{\keyword{[]} | \keyword{[} basicListIter \keyword{]} } \\
 \code{basicListIter} \textrightarrow \code{ stmt \keyword{for} identifier \keyword{in} identifier} \\
 
 \code{varDef} \textrightarrow \code{varDecl \keyword{=} val} \\
@@ -155,20 +151,58 @@ int main() {
 \newpage
 
 \section{Tutorial}
-Język posiada składnie bardzo podobną do języka C. \\
+Prezentowany język jest językiem imperatywnym z silnym typowaniem. Posiada trzy typy wbudowane: \texttt{int}, \texttt{float}, oraz \texttt{bool}.
+Język posiada wbudowane instrukcje \texttt{print} oraz \texttt{println}, które służą do wypisywania danych na standardowe wyjście, druga instrukcja dodaje znak końca linii po wypisaniu wartości.
+
+Podstawowy program może wyglądać następująco:
+\begin{lstlisting}[tabsize=2]
+void main() {
+	println \"Hello world!\"
+	}
+\end{lstlisting}
+Wypisze on napis "Hello world" na wyjście konsoli. \\
+
 Deklaracja funkcji odbywa się wg schematu: \\
 \texttt{TYP NAZWA (LISTA ARGUMENTÓW) \{INSTRUKCJE\}} \\
+Aby program mógł się wykonać konieczne jest umieszczenie w nim funkcji \texttt{main}. Od pierwszej instrukcji tej funkcji rozpoczyna się wykonanie programu.
 
-Pętla \texttt{for} jest budowana w następujący sposób: \\
-\texttt{for (DEKLARACJA WARTOŚCI DO ITEROWANIA; WARUNEK KOŃCA; ZMIANA WARTOŚCI ITEROWANIA;)\{INSTRUKCJE\}}\\
+Zmienne mogą posiadać typ prosty, wtedy definicja polega na podaniu typu i nazwy, np: \\
+\texttt{int a;} \\
+lub typ listowy, wtedy deklarujemy zmienną w następujący sposób:\\
+\texttt{list(int) a[10];} \\
+Tworzona lista posiada rozmiar zadeklarowany w nawiasach kwadratowych.\\
 
-Instrukcja \texttt{if} jest budowana w następujący sposób: \\
-\texttt{if (WARUNEK) \{INSTRUKCJE\}} \\
+Możemy zmienić wartość każdego elementu listy za pomocą specjalnej konstrukcji:\\
+\texttt{[WYRAŻENIE for NAZWA ZMIENNEJ DLA JEDNEGO ELEMENTU in NAZWA LISTY]} \\
 
-Operacje listowe realizowane są wg schematu: \\
-\texttt{[INSTRUKCJA for NAZWA ZMIENNEJ DLA JEDNEGO ELEMENTU in NAZWA LISTY]} \\
+Wyciągnięcie wartości na konkretnej pozycji listy jest możliwe dzięki nawiasom kwadratowym:\\
+\texttt{print a[5];} \\
+Powyższa instrukcja wydrukuje wartość \textbf{szóstego} elementu listy. Listy są indeksowane od 0.
 
-Wszystkie instrukcje muszą kończyć się średnikiem.
+Jeśli chcemy wykonać ciąg instrukcji pod jakimś warunkiem możemy użyć instrukcji \texttt{if}, np.:
+\begin{lstlisting}[tabsize=2]
+	int temp = 19;
+	if (temp > 25)
+		println \"It's hot!\";
+
+	if (temp <= 25)
+		println \"Preety cool!\";
+\end{lstlisting}
+W nawiasie po słowie \texttt{if} podajemy warunek, który musi posiadać wartość logiczną. Jeśli instrukcji jest więcej możemy je zgrupować w klamrach \texttt{\{\}}.
+
+Powtarzające się instrukcje możemy zamknąć wewnątrz instrukcji \texttt{for}, np.:
+\begin{lstlisting}[tabsize=2]
+	int a = 1;
+	for (int i = 0; i < 8; i = i + 1;) {
+		println a;
+		a = a * 2;
+	}
+	println a;
+\end{lstlisting}
+Pierwsza instrukcja wewnątrz nawiasu definiuje zmienną, która będzie służyła do iteracji. Na drugim miejscu występuje warunek zakończenia pętli, a na trzecim miejscu instrukcja, która zmienia zmienną iteracyjną po każdym obiegu pętli.
+
+Jak można zauważyć wszystkie instrukcje muszą kończyć się średnikiem.
+Instrukcja wbudowane \texttt{print} lub \texttt{println} przyjmują jeden argument, który może być konkretnym napisem, wtedy podajemy go w cudzysłowie, lub wartością wtedy podajemy nazwę zmiennej dla typów prostych lub nazwę listy i indeks argumentu.
 
 
 
