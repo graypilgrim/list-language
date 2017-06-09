@@ -248,14 +248,17 @@ void Interpreter::assignValue(const std::shared_ptr<DerivationNode> &n)
 		case Type::INT: {
 			auto lValValue = lValEntry->getValue()->getInt().get();
 			lValValue[indexNumber] = *(rValResult->getInt());
+			break;
 		}
 		case Type::FLOAT: {
 			auto lValValue = lValEntry->getValue()->getFloat().get();
 			lValValue[indexNumber] = *(rValResult->getFloat());
+			break;
 		}
 		case Type::BOOL: {
 			auto lValValue = lValEntry->getValue()->getBool().get();
 			lValValue[indexNumber] = *(rValResult->getBool());
+			break;
 		}
 		}
 	}
@@ -340,20 +343,9 @@ void Interpreter::processListStmt()
 	auto id = idNode->getLabel();
 	table->addEntry(id, entry, idNode);
 
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 1" << std::endl;
-
 	auto listName = current->getChildren()[0]->getChildren()[4]->getChildren()[0]->getLabel();
 	auto listEntry = current->getSymbolEntry(listName);
 	auto type = listEntry->getValue()->getType();
-
-	std::cout << ">>>>DEBUG: " << __FUNCTION__ << ": 2" << std::endl;
-
-	// if (type == Type::INT)
-	// 	entry->getValue()->setType(Type::INT);
-	// else if (type == Type::BOOL)
-	// 	entry->getValue()->setType(Type::BOOL);
-	// else if (type == Type::FLOAT)
-	// 	entry->getValue()->setType(Type::FLOAT);
 
 	switch (type) {
 	case Type::INT: {
@@ -391,27 +383,27 @@ void Interpreter::processListStmt()
 	}
 	}
 }
-//
-// void Interpreter::processIndexStmt()
-// {
-// 	if (current->getParent()->getType() == NodeType::varDecl) {
-// 		auto siblings = current->getParent()->getChildren();
-// 		std::string id;
-// 		for (auto &n : siblings)
-// 			if (n->getType() == NodeType::identifier) {
-// 				id = n->getChildren()[0]->getLabel();
-// 				break;
-// 			}
-//
-// 		auto entry = current->getSymbolEntry(id);
-// 		auto listSize = evaluate(current->getChildren()[0]);
-// 		auto listSizeNumber = *(int*)(listSize.get());
-// 		entry->setListSize(listSizeNumber);
-// 		auto val = std::shared_ptr<void>(new int[listSizeNumber]);
-// 		entry->setValue(val);
-// 	}
-// }
-//
+
+void Interpreter::processIndexStmt()
+{
+	// if (current->getParent()->getType() == NodeType::varDecl) {
+	// 	auto siblings = current->getParent()->getChildren();
+	// 	std::string id;
+	// 	for (auto &n : siblings)
+	// 		if (n->getType() == NodeType::identifier) {
+	// 			id = n->getChildren()[0]->getLabel();
+	// 			break;
+	// 		}
+	//
+	// 	auto entry = current->getSymbolEntry(id);
+	// 	auto listSize = evaluate(current->getChildren()[0]);
+	// 	auto listSizeNumber = *(int*)(listSize.get());
+	// 	entry->setListSize(listSizeNumber);
+	// 	auto val = std::shared_ptr<void>(new int[listSizeNumber]);
+	// 	entry->setValue(val);
+	// }
+}
+
 void Interpreter::processPrintStmt()
 {
 	if (current->getChildren()[0]->getType() == NodeType::symbol) {

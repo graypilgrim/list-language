@@ -39,12 +39,23 @@ TEST_CASE( "Execution: mocked stream") {
 		// "	println a;\n"
 		// "}\n";
 
+		// const char *program =
+		// "int main() {\n"
+		// "	list(int) l[10];\n"
+		// "	[3 for i in l];\n"
+		// "	[3 * i for i in l];\n"
+		// "	println l[3];\n"
+		// "}\n";
+
 		const char *program =
-		"int main() {\n"
+		"int main() { \n"
 		"	list(int) l[10];\n"
-		"	[3 for i in l];\n"
-		"	[3 * i for i in l];\n"
-		"	println l[3];\n"
+		"	[0 for i in l];\n"
+		"	int c = 5;\n"
+		"	for (int a = 0; a < 10; a = a + 1;) {\n"
+		"		l[a] = a;\n"
+		"		println l[a];\n"
+		"	}\n"
 		"}\n";
 
 		std::string exText(program);
